@@ -74,6 +74,7 @@ class _enterPhoneNumberState extends State<enterPhoneNumber> {
                         child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 8.0, horizontal: 30),
+                            // ignore: missing_required_param
                             child: PinCodeTextField(
                               appContext: context,
                               backgroundColor: Colors.transparent,

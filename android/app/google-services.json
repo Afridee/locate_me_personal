@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "567350166629-pe84bp3jkc7kf71d2rbepd1djcetv8sn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oreostudio.locate_me",
+            "certificate_hash": "8c9fc6a80cff29da6c500b87e4bc8c6e5522fd0f"
+          }
+        },
+        {
           "client_id": "567350166629-v8fhpr0ei05q24tkr7rh0t1lek05p6ep.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -37,6 +45,13 @@
             {
               "client_id": "567350166629-8ufuitnv7c4b18beqq56po826ft1dsrb.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "567350166629-5q6vd5e0r8duthqfn5ilk7oopf176u95.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.oreostudio.locateMe"
+              }
             }
           ]
         }
