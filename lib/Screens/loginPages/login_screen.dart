@@ -24,7 +24,6 @@ class _login_pageState extends State<login_page> {
   void initState() {
     LS = new loginScreenStateClass();
 
-
     super.initState();
   }
 
@@ -40,100 +39,98 @@ class _login_pageState extends State<login_page> {
       DeviceOrientation.portraitUp,
     ]);
 
+    Size size = MediaQuery.of(context).size;
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-          backgroundColor: Color(0xffFFFFFF),
-          body: Observer(builder: (context) {
+        body: Observer(
+          builder: (context) {
             return ModalProgressHUD(
               inAsyncCall: LS.Spinner,
-              child: SingleChildScrollView(
-                child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/Background.png"),
-                      fit: BoxFit.fill,
-                    ),
+              child: Container(
+                height: size.height,
+                width: size.width,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/Background.png"),
+                    fit: BoxFit.fill,
                   ),
-                  child: ListView(
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.only(top: 50),
-                        height: 300,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: FadeAnimation(
-                            1.5,
-                            Image(
-                              image: AssetImage('assets/images/locate_me_icon.png'),
-                              alignment: Alignment.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 200,
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Locate Me',
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
-                              Text(
-                                  'Emergency Location Sharing App'
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, right: 30, bottom: 30, top: 20),
-                        child: InkWell(
-                          onTap: (){
-                            var route = new MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                              new enterPhoneNumber(),
-                            );
-                            Navigator.of(context).push(route);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Color(0xff1d1c79),
-                              borderRadius: BorderRadius.circular(25)
-                            ),
-                            width: 220,
-                            height: 55,
-                            child: Center(
-                              child: Text(
-                                'Register',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                                ),
+                ),
+                child: SingleChildScrollView(
+                  child: Container(
+                    height: size.height,
+                    width: size.width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.only(top: 50),
+                          height: 300,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: FadeAnimation(
+                              1.5,
+                              Image(
+                                image: AssetImage(
+                                    'assets/images/locate_me_icon.png'),
+                                alignment: Alignment.center,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'Locate Me',
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 5.0,
+                          ),
+                          child: Text('Emergency Location Sharing App'),
+                        ),
+                        Container(
+                          width: size.width,
+                          height: 60,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: size.width * .1, vertical: 35),
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            color: Color(0xff1D1C79),
+                            onPressed: () {
+                              var route = new MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    new enterPhoneNumber(),
+                              );
+                              Navigator.of(context).push(route);
+                            },
+                            child: Text(
+                              "Register",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 25,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             );
-          })),
+          },
+        ),
+      ),
     );
   }
 }

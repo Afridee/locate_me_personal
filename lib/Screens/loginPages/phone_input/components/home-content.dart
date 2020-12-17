@@ -70,7 +70,7 @@ class HomeContent extends StatelessWidget {
                 height: 60,
                 child: RaisedButton(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   color: Color(0xff1D1C79),
                   onPressed: () {

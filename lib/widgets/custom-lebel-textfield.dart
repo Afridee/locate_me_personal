@@ -30,7 +30,7 @@ class CustomLabelTextField extends StatelessWidget {
             focusColor: Colors.black,
             fillColor: Colors.black,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(25),
               borderSide:
                   BorderSide(color: Colors.black, style: BorderStyle.solid),
             ),
