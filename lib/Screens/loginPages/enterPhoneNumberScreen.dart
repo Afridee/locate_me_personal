@@ -1,11 +1,9 @@
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
-import '../../Constants.dart';
 import 'package:flutter/material.dart';
 import 'phoneNumberStateManagement.dart';
 import 'loginFunctionalities.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:otp_text_field/otp_text_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import 'phone_input/home.dart';

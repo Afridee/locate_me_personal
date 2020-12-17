@@ -57,7 +57,7 @@ class _login_pageState extends State<login_page> {
                       fit: BoxFit.fill,
                     ),
                   ),
-                  child: Column(
+                  child: ListView(
                     children: <Widget>[
                       Container(
                         padding: EdgeInsets.only(top: 50),
