@@ -28,7 +28,7 @@ flutter packages pub run build_runner build --delete-conflicting-outputs
 
 - [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-- [for creating models] (http://quicktype.io/)
+- [for creating models](http://quicktype.io/)
 
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
