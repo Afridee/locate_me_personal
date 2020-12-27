@@ -1,30 +1,110 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_auth/firebase_auth.dart' as fba;
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:locate_me/Screens/loginPages/firebase_auth_service.dart';
 import 'package:picker/picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
 
+class FormStatecontroller extends GetxController {
+  File imageFile;
+  bool update_button_activated = true;
 
-class FormStatecontroller extends GetxController{
+  void getImage() async {
+    final status = await Permission.storage.request();
 
-   File imageFile;
+    if (status.isGranted) {
+      try {
+        imageFile = await Picker.pickImage(
+          source: ImageSource.gallery,
+          maxWidth: 700,
+          maxHeight: 700,
+        );
+        update();
+      } catch (error) {
+        print('Error while getting image : ' + error.toString());
+      }
+    }
+  }
 
+  void updateUserInfo(BuildContext context, String full_name) async {
 
-  void getImage() async{
-     try{
+    if (update_button_activated && !imageFile.isNull && full_name.length > 5) {
 
-       final status = await Permission.storage.request();
+      //first deactivate the button, so that the user doesn't keep clicking it like a little bitch:
+      update_button_activated = false;
+      update();
 
-       if(status.isGranted){
-         imageFile = await Picker.pickImage(
-           source: ImageSource.gallery,
-           maxWidth: 5000,
-           maxHeight: 5000,
-         );
-         update();
-       }
+      //getting the image name:
+      String fileName = basename(imageFile.path);
 
-     }catch(error){
-       print('Error while getting image: ' + error.toString());
-     }
+      //getting the user's UID:
+      final auth = fba.FirebaseAuth.instance;
+      final fba.User user = auth.currentUser;
+      String _userID = user.uid;
+
+      //setting up a reference for firebase storage:
+      firebase_storage.Reference firebaseStorageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('images/$_userID/' + fileName);
+
+      //uploading the image:
+      firebase_storage.UploadTask uploadTask =
+          firebaseStorageRef.putFile(imageFile);
+
+      //Checking upload status:
+      uploadTask.snapshotEvents.listen(
+          (firebase_storage.TaskSnapshot snapshot) {
+        print('Task state: ${snapshot.state}');
+        print('Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100} %');
+      }, onError: (e) {
+        update_button_activated = true;
+        update();
+        if (e.code == 'permission-denied') {
+          print('User does not have permission to upload to this reference.');
+        }
+      });
+
+      //get the image URL:
+      uploadTask.whenComplete(() async {
+        try {
+          String downloadURL = await firebaseStorageRef.getDownloadURL();
+
+          //Making a FirebaseAuthService instance to update unserInfo in provider:
+          final auth = Provider.of<FirebaseAuthService>(context, listen: false);
+
+          //Updating/Adding userInfo in firebase Database:
+          final CollectionReference users = FirebaseFirestore.instance.collection('Users');
+          await users.doc(_userID).set(
+            {
+              'full_name': full_name,
+              'profile_image': downloadURL,
+              'phone_number': user.phoneNumber,
+              'user_id': _userID
+            },
+          );
+
+          //update unserInfo in provider:
+          auth.getCurrentUserINFO();
+
+          //activating the button again:
+          update_button_activated = true;
+          update();
+        } catch (e) {
+          update_button_activated = true;
+          update();
+          print('Error while getting download url and updating user info: ' +
+              e.toString());
+        }
+      });
+    }
+
   }
 }

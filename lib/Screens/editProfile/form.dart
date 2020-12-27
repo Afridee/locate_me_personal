@@ -109,22 +109,31 @@ class _formState extends State<form> {
             ),
             Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Container(
-                child: Center(
-                  child: Text(
-                    'PROCEED',
-                    style: TextStyle(color: Colors.white),
+              child: InkWell(
+                onTap: (){
+                  formStatecontroller.updateUserInfo(context, name_controller.text);
+                },
+                child: Container(
+                  child: Center(
+                    child: GetBuilder<FormStatecontroller>(
+                      builder: (context){
+                        return Text(
+                          context.update_button_activated? 'PROCEED' : 'UPDATING.....',
+                          style: TextStyle(color: Colors.white),
+                        );
+                      },
+                    ),
                   ),
+                  height: 40,
+                  width: 543,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+                        Color(0xffF17350),
+                        Color(0xffFF5050),
+                      ]),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.red),
                 ),
-                height: 40,
-                width: 543,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                      Color(0xffF17350),
-                      Color(0xffFF5050),
-                    ]),
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.red),
               ),
             )
           ],

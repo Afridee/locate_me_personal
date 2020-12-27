@@ -81,7 +81,7 @@ class FirebaseAuthService extends ChangeNotifier{
 
   getCurrentUserINFO() async{
     try {
-      await FirebaseFirestore.instance.doc("users/$userID").get().then((doc) {
+      await FirebaseFirestore.instance.doc("Users/$userID").get().then((doc) {
         if (doc.exists){
           _userInfoGiven = true;
           _userInfo = doc.data();
