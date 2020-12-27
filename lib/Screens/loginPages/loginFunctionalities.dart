@@ -5,11 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Future<void> LogInWithFacebook(BuildContext context) async {
-  final auth = Provider.of<FirebaseAuthService>(context, listen: false);
-  final user = await auth.fbLogin();
-  auth.getCurrentUserUID();
-}
 
 Future<void> LogInWIthGoogle(BuildContext context) async {
   final auth = Provider.of<FirebaseAuthService>(context, listen: false);

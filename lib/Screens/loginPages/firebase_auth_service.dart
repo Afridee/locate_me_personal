@@ -3,7 +3,6 @@ import 'phoneNumberStateManagement.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 
@@ -44,18 +43,7 @@ class FirebaseAuthService extends ChangeNotifier{
     return _userFromFirebase(authResult.user);
   }
 
-  Future<User> fbLogin() async {
-    FacebookLogin facebookSignIn  = new FacebookLogin();
-    final FacebookLoginResult result = await facebookSignIn.logIn(['email']);
 
-    final FacebookAccessToken accessToken = result.accessToken;
-
-    final authResult = await  fba.FirebaseAuth.instance.signInWithCredential(
-      fba.FacebookAuthProvider.credential(accessToken.token),
-    );
-
-    return _userFromFirebase(authResult.user);
-  }
 
   Future<User> googleLogin() async {
 

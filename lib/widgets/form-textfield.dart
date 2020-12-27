@@ -6,9 +6,10 @@ class formTextfield extends StatelessWidget {
   final label;
   final TextEditingController textController;
   final inputType;
+  final hintText;
 
   const formTextfield({
-    Key key,@required this.label,@required this.textController,@required this.inputType,
+    Key key,@required this.label,@required this.textController,@required this.inputType,@required this.hintText,
   }) : super(key: key);
 
   @override
@@ -19,6 +20,7 @@ class formTextfield extends StatelessWidget {
         keyboardType: inputType,
         controller: textController,
         decoration: InputDecoration(
+          hintText: hintText.toString(),
             labelText: label.toString()
         ),
       ),
