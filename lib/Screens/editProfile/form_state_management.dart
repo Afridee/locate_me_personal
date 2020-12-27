@@ -5,7 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:locate_me/Screens/loginPages/firebase_auth_service.dart';
+import '../../Screens/loginPages/firebase_auth_service.dart';
+import '../../widgets/dialogue.dart';
 import 'package:picker/picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart';
@@ -34,7 +35,6 @@ class FormStatecontroller extends GetxController {
   }
 
   void updateUserInfo(BuildContext context, String full_name) async {
-
     if (update_button_activated && !imageFile.isNull && full_name.length > 5) {
 
       //first deactivate the button, so that the user doesn't keep clicking it like a little bitch:
@@ -104,7 +104,16 @@ class FormStatecontroller extends GetxController {
               e.toString());
         }
       });
+    }else{
+      if(imageFile.isNull){
+        appShowDialog(context, 'Image not selected', '...', Color(0xffF17350));
+      }
+      if(full_name.length < 5){
+        appShowDialog(context, 'Invalid Name', 'Please enter your full name', Color(0xffF17350));
+      }
+      if(!update_button_activated){
+        appShowDialog(context, 'Hold your horses, you already clicked', '...', Color(0xffF17350));
+      }
     }
-
   }
 }

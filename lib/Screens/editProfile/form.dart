@@ -111,7 +111,7 @@ class _formState extends State<form> {
               padding: const EdgeInsets.all(15.0),
               child: InkWell(
                 onTap: (){
-                  formStatecontroller.updateUserInfo(context, name_controller.text);
+                  //formStatecontroller.updateUserInfo(context, name_controller.text);
                 },
                 child: Container(
                   child: Center(
@@ -132,7 +132,7 @@ class _formState extends State<form> {
                         Color(0xffFF5050),
                       ]),
                       borderRadius: BorderRadius.circular(20),
-                      color: Colors.red),
+                      ),
                 ),
               ),
             )
