@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'enterPhoneNumberScreen.dart';
 import 'package:flutter/services.dart';
 import '../../Animation/FadeAnimation.dart';
+import '../../widgets/custom-painter.dart';
+import '../../widgets/bottom-painter.dart';
+import '../../widgets/primary-button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -48,26 +51,27 @@ class _login_pageState extends State<login_page> {
           builder: (context) {
             return ModalProgressHUD(
               inAsyncCall: LS.Spinner,
-              child: Container(
-                height: size.height,
-                width: size.width,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/Background.png"),
-                    fit: BoxFit.fill,
+              child: Stack(
+                children: [
+                  BottomPainter(
+                    top: MediaQuery.of(context).size.height - 80,
+                    painter: LightVioletCustomPaint(),
                   ),
-                ),
-                child: SingleChildScrollView(
-                  child: Container(
+                  BottomPainter(
+                    top: MediaQuery.of(context).size.height - 80,
+                    painter: VioletCustomPaint(),
+                  ),
+                  Container(
                     height: size.height,
                     width: size.width,
+                    alignment: Alignment.center,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Spacer(),
                         Container(
                           alignment: Alignment.center,
                           padding: EdgeInsets.only(top: 50),
-                          height: 300,
+                          height: 150,
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
                             child: FadeAnimation(
@@ -80,13 +84,14 @@ class _login_pageState extends State<login_page> {
                             ),
                           ),
                         ),
-                        Spacer(),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
                             'Locate Me',
                             style: TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
+                              fontSize: 30,
+                              color: Color(0xff1C2D69),
+                            ),
                           ),
                         ),
                         Padding(
@@ -94,38 +99,40 @@ class _login_pageState extends State<login_page> {
                             horizontal: 20,
                             vertical: 5.0,
                           ),
-                          child: Text('Emergency Location Sharing App'),
+                          child: Text(
+                            'Emergency Location Sharing App',
+                            style: TextStyle(
+                                color: Color(0xff9B9B9B), fontSize: 15),
+                          ),
                         ),
+                        Spacer(),
                         Container(
-                          width: size.width,
-                          height: 60,
                           margin: EdgeInsets.symmetric(
                               horizontal: size.width * .1, vertical: 35),
-                          child: RaisedButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            color: Color(0xff1D1C79),
-                            onPressed: () {
+                          child: PrimaryButton(
+                            size: size.width,
+                            text: "GET STARTED",
+                            press: () {
                               var route = new MaterialPageRoute(
                                 builder: (BuildContext context) =>
                                     new enterPhoneNumber(),
                               );
                               Navigator.of(context).push(route);
                             },
-                            child: Text(
-                              "Register",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
-                              ),
-                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Container(
+                          margin: EdgeInsets.only(bottom: 80),
+                          child: Text(
+                            "Oreo Studio | 2020",
+                            style: TextStyle(color: Color(0xffB2BCC3)),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
             );
           },

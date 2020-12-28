@@ -28,28 +28,9 @@ class _formState extends State<form> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xffffffff),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/locate_me_icon.png',
-              fit: BoxFit.contain,
-              height: 32,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              'Locate Me',
-              style: TextStyle(color: Color(0xff1C2D69)),
-            )
-          ],
-        ),
-        elevation: 0,
-      ),
+      appBar: buildAppBar(context),
       body: Container(
+        margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*.05),
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(color: Color(0xffffffff)),
@@ -92,17 +73,33 @@ class _formState extends State<form> {
               height: 15,
             ),
             Text(
-              'Upload a profile picture',
+              'Take a profile picture',
               style: TextStyle(
                   color: Color(0xff1C2D69),
                   fontSize: 15,
                   fontWeight: FontWeight.w700),
             ),
-            formTextfield(
-              hintText: 'John Doe',
-              textController: name_controller,
-              inputType: TextInputType.name,
-              label: 'Enter your full name',
+            
+            Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: TextField(
+                keyboardType: TextInputType.name,
+                        controller: name_controller,
+                        decoration: InputDecoration(
+                          
+                          hintText: "John Doe",
+                          labelText: 'Enter your full name',
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(15),
+                          focusColor: Colors.black,
+                          fillColor: Colors.black,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                                color: Colors.black, style: BorderStyle.solid),
+                          ),
+                        ),
+                      ),
             ),
             SizedBox(
               height: 30,
@@ -140,5 +137,39 @@ class _formState extends State<form> {
         ),
       ),
     );
+  }
+  AppBar buildAppBar(BuildContext context) {
+    return AppBar(
+        elevation: 0.0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Color(0xff959595),
+            size: 16,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: RichText(
+          text: TextSpan(
+            children: [
+              WidgetSpan(
+                child: Image(
+                  image: AssetImage("assets/images/locate_me_icon.png"),
+                  width: 15,
+                ),
+              ),
+              TextSpan(
+                text: "  Locate Me",
+                style: TextStyle(
+                  color: Color(0xff1C2D69),
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }
