@@ -95,7 +95,7 @@ class MapStatecontroller extends GetxController {
   Future<void> getCurrentLocation(BuildContext context) async {
 
     try {
-      Uint8List imageData = await getMarker(context, "assets/images/you_are_here.png");
+      Uint8List imageData = await getMarker(context, "assets/images/you_are_here_2.png");
 
       if (_locationSubscription != null) {
         _locationSubscription.cancel();
