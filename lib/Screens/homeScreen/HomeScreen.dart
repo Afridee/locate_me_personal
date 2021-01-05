@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:sms/sms.dart';
 import 'liveLocationState.dart';
 import 'mapStateManagment.dart';
@@ -12,12 +13,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String _mapStyle;
   MapStatecontroller mapStatecontroller = Get.put(MapStatecontroller());
   final CameraPosition _initialPosition = CameraPosition(target: LatLng(23.6850, 90.3563));
 
   @override
   void initState() {
     mapStatecontroller.getCurrentLocation(context);
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
     super.initState();
   }
 
@@ -41,6 +46,7 @@ class _HomeState extends State<Home> {
                     initialCameraPosition: _initialPosition,
                     markers: MSC.marker != null ? Set.of([MSC.marker]) : null,
                     onMapCreated: (GoogleMapController controller) {
+                      controller.setMapStyle(_mapStyle);
                       mapStatecontroller.setController(controller);
                     },
                   );
