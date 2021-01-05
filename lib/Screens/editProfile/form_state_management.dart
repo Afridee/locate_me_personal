@@ -14,10 +14,12 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class FormStatecontroller extends GetxController {
+
   File imageFile;
   bool update_button_activated = true;
 
   void getImage() async {
+
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
@@ -102,7 +104,7 @@ class FormStatecontroller extends GetxController {
           update();
           print('Error while getting download url and updating user info: ' +
               e.toString());
-        }
+          }
       });
     }else{
       if(imageFile.isNull){

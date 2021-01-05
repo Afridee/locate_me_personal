@@ -7,9 +7,10 @@ class formTextfield extends StatelessWidget {
   final TextEditingController textController;
   final inputType;
   final hintText;
+  final Widget prefixIcon;
 
   const formTextfield({
-    Key key,@required this.label,@required this.textController,@required this.inputType,@required this.hintText,
+    Key key, this.label,@required this.textController,@required this.inputType,@required this.hintText, this.prefixIcon,
   }) : super(key: key);
 
   @override
@@ -20,8 +21,12 @@ class formTextfield extends StatelessWidget {
         keyboardType: inputType,
         controller: textController,
         decoration: InputDecoration(
+          prefixIcon: prefixIcon,
           hintText: hintText.toString(),
-            labelText: label.toString()
+            labelText: label.toString(),
+            labelStyle: TextStyle(
+              color: Color(0xffF17350),
+            )
         ),
       ),
     );

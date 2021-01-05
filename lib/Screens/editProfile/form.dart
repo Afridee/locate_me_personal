@@ -28,6 +28,7 @@ class _formState extends State<form> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
       appBar: buildAppBar(context),
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*.05),

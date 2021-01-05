@@ -1,9 +1,11 @@
+import 'Screens/PickContacts/contacts.dart';
 import 'Screens/editProfile/form.dart';
 import 'Screens/loginPages/login_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Screens/loginPages/firebase_auth_service.dart';
+import 'entry_phase_2.dart';
 
 class entry_phase_1 extends StatefulWidget {
   @override
@@ -19,7 +21,7 @@ class _entry_phase_1State extends State<entry_phase_1> {
       builder: (_, AsyncSnapshot<User> snapshot){
         if(snapshot.connectionState == ConnectionState.active){
           final User user = snapshot.data;
-          return user == null? login_page() : (auth.userInfoGiven? Container(color: Colors.green) : form());
+          return user == null? login_page() : (auth.userInfoGiven? EntryPhase2() : form());
         }else{
           return Scaffold(
               body: Container(

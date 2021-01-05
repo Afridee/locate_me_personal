@@ -9,12 +9,18 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
 
 
     <application
         android:label="locate_me"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAQBicVbY4o2H7w9ufjP0trTdxsVikfEjc"/>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
