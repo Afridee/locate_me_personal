@@ -1,16 +1,20 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:location/location.dart';
 import 'package:shake/shake.dart';
 import 'package:sms/sms.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/loginPages/firebase_auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 
 class MapStatecontroller extends GetxController {
 
@@ -25,6 +29,39 @@ class MapStatecontroller extends GetxController {
   bool shareLiveLocation = false;
   ShakeDetector detector;
   bool pauseSMS = false;
+  bool updateLocation = true;
+
+  void pauseLocationUpdate() {
+    Timer(Duration(seconds: 20),(){
+      updateLocation = !updateLocation ;
+      update();
+    });
+    updateLocation  = !updateLocation;
+    update();
+  }
+
+  Future<void> getFruit() async {
+    HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getHelpers');
+    final results = await callable({'latitude': 23.8680437,'longitude':90.3944072});
+    List fruit = results.data;  // ["Apple", "Banana", "Cherry", "Date", "Fig", "Grapes"]
+    print(fruit);
+  }
+
+  updatingLocationOnFirebase(LocationData newLocation) async{
+
+    //getting the user's UID:
+    final auth = fba.FirebaseAuth.instance;
+    final fba.User user = auth.currentUser;
+    String _userID = user.uid;
+
+    final geo = Geoflutterfire();
+    GeoFirePoint myLocation = geo.point(latitude: newLocation.latitude, longitude: newLocation.longitude);
+
+    final CollectionReference users = FirebaseFirestore.instance.collection('Users');
+    await users.doc(_userID).update({
+      'g' : myLocation.data
+    });
+  }
 
   send_SMS_Location_To_Trusted_Contacts(BuildContext context, LocationData location){
     Box<Map> selected_contact_box = Hive.box<Map>("selected_contact_box");
@@ -54,14 +91,14 @@ class MapStatecontroller extends GetxController {
   enable_shake(){
     detector = ShakeDetector.waitForStart(
         onPhoneShake: () {
-          toggleButton_for_reminder();
+          toggleButton_for_shareLive();
         }
     );
     detector.startListening();
     update();
   }
 
-  void toggleButton_for_reminder() {
+  void toggleButton_for_shareLive() {
     shareLiveLocation = !shareLiveLocation;
     update();
   }
@@ -108,6 +145,11 @@ class MapStatecontroller extends GetxController {
           if(shareLiveLocation && !pauseSMS){
             send_SMS_Location_To_Trusted_Contacts(context, newLocalData);
             pauseSMS_sender();
+          }
+
+          if(updateLocation){
+            updatingLocationOnFirebase(newLocalData);
+            pauseLocationUpdate();
           }
 
           if (_controller != null) {

@@ -1,8 +1,12 @@
+import 'package:firebase_cloud_messaging/firebase_cloud_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:locate_me/widgets/dialogue.dart';
 import 'package:sms/sms.dart';
 import 'liveLocationState.dart';
 import 'mapStateManagment.dart';
@@ -15,7 +19,9 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String _mapStyle;
   MapStatecontroller mapStatecontroller = Get.put(MapStatecontroller());
-  final CameraPosition _initialPosition = CameraPosition(target: LatLng(23.6850, 90.3563));
+  final CameraPosition _initialPosition =
+      CameraPosition(target: LatLng(23.6850, 90.3563));
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   @override
   void initState() {
@@ -23,6 +29,20 @@ class _HomeState extends State<Home> {
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        appShowDialog(context, message['notification']['title'],
+            message['notification']['body'], Colors.green);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        appShowDialog(context, message['notification']['title'],
+            message['notification']['body'], Colors.green);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        appShowDialog(context, message['notification']['title'],
+            message['notification']['body'], Colors.green);
+      },
+    );
     super.initState();
   }
 
@@ -41,6 +61,7 @@ class _HomeState extends State<Home> {
               GetBuilder<MapStatecontroller>(
                 builder: (MSC) {
                   return GoogleMap(
+                    scrollGesturesEnabled: !MSC.shareLiveLocation,
                     minMaxZoomPreference: MinMaxZoomPreference(10, 18),
                     mapType: MapType.normal,
                     initialCameraPosition: _initialPosition,
@@ -74,8 +95,7 @@ class _HomeState extends State<Home> {
                                       fontWeight: FontWeight.w400),
                                 ),
                               ),
-                              GetBuilder<MapStatecontroller>(
-                                  builder: (LSC) {
+                              GetBuilder<MapStatecontroller>(builder: (LSC) {
                                 return AnimatedContainer(
                                   duration: Duration(milliseconds: 200),
                                   height: 40.0,
@@ -84,21 +104,32 @@ class _HomeState extends State<Home> {
                                       borderRadius: BorderRadius.circular(20.0),
                                       color: LSC.shareLiveLocation
                                           ? Colors.greenAccent[100]
-                                          : Colors.redAccent[100]
-                                              ),
+                                          : Colors.redAccent[100]),
                                   child: Stack(
                                     children: <Widget>[
                                       AnimatedPositioned(
                                         duration: Duration(milliseconds: 200),
                                         curve: Curves.easeIn,
                                         top: 3.0,
-                                        left: LSC.shareLiveLocation ? 30.0 : 0.0,
-                                        right: LSC.shareLiveLocation ? 0.0 : 30.0,
+                                        left:
+                                            LSC.shareLiveLocation ? 30.0 : 0.0,
+                                        right:
+                                            LSC.shareLiveLocation ? 0.0 : 30.0,
                                         child: InkWell(
-                                          onTap: mapStatecontroller
-                                              .toggleButton_for_reminder,
+                                          onTap: () {
+                                            mapStatecontroller
+                                                .toggleButton_for_shareLive();
+                                            if (LSC.shareLiveLocation) {
+                                              appShowDialog(
+                                                  context,
+                                                  'Live Location On',
+                                                  'Your location is being shared with your trusted contacts',
+                                                  Color(0xff410DA2));
+                                            }
+                                          },
                                           child: AnimatedSwitcher(
-                                            duration: Duration(milliseconds: 200),
+                                            duration:
+                                                Duration(milliseconds: 200),
                                             transitionBuilder: (Widget child,
                                                 Animation<double> animation) {
                                               return RotationTransition(
@@ -138,21 +169,26 @@ class _HomeState extends State<Home> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        child: Center(
-                          child: Text(
-                            "ASK FOR HELP",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400),
+                      child: InkWell(
+                        onTap: () {
+                          mapStatecontroller.getFruit();
+                        },
+                        child: Container(
+                          child: Center(
+                            child: Text(
+                              "ASK FOR HELP",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400),
+                            ),
                           ),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: Color(0xffF26F50)),
+                          width: MediaQuery.of(context).size.width - 105,
+                          height: 50,
                         ),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Color(0xffF26F50)),
-                        width: MediaQuery.of(context).size.width - 105,
-                        height: 50,
                       ),
                     ),
                     SizedBox(
@@ -160,6 +196,14 @@ class _HomeState extends State<Home> {
                     )
                   ],
                 ),
+              ),
+              GetBuilder<MapStatecontroller>(
+                builder: (context){
+                  return context.shareLiveLocation ? SpinKitRipple(
+                    color: Color(0xff410DA2),
+                    size: 60.0,
+                  ) : Container();
+                },
               ),
             ],
           ),
