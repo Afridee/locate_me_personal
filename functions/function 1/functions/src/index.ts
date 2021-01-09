@@ -23,10 +23,10 @@ export const getHelpers = functions.https.onCall( async (data, context) => {
 
     try{
             // Create a GeoQuery based on a location
-            const query = geocollection.near({ center: new firebase.firestore.GeoPoint(data['latitude'], data['longitude']), radius: 1000 });
+            const query = geocollection.near({ center: new firebase.firestore.GeoPoint(data['latitude'], data['longitude']), radius: 15 });
 
             // Get query (as Promise)
-            var docs = await query.get().then((value) => {
+            const docs = await query.get().then((value) => {
             // All GeoDocument returned by GeoQuery, like the GeoDocument added above
             return value.docs;
             });
@@ -36,4 +36,29 @@ export const getHelpers = functions.https.onCall( async (data, context) => {
     }catch(error){
         return error;       
     }
+  });
+
+  
+  export const sendRequestToHelpers = functions.https.onCall( (data, context) => { 
+    
+     try{
+     
+     const fcm = firebase.messaging();
+    
+     const token = data;
+ 
+     const payload: firebase.messaging.MessagingPayload = {
+       notification: {
+         title: 'Someone needs your help',
+         body: `.....`,
+         icon: '',
+         click_action: 'FLUTTER_NOTIFICATION_CLICK'
+       }
+     };
+
+     return fcm.sendToDevice(token, payload);
+ 
+     }catch(error){
+      return error; 
+     }
   });

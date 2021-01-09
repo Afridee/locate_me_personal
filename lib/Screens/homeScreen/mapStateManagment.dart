@@ -41,10 +41,16 @@ class MapStatecontroller extends GetxController {
   }
 
   Future<void> getFruit() async {
-    HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getHelpers');
-    final results = await callable({'latitude': 23.8680437,'longitude':90.3944072});
-    List fruit = results.data;  // ["Apple", "Banana", "Cherry", "Date", "Fig", "Grapes"]
-    print(fruit);
+//get helper example:
+//    HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getHelpers');
+//    final results = await callable({'latitude': 23.8680437,'longitude':90.3944072});
+//    List fruit = results.data;
+//    print(fruit);
+
+//send help request example:
+//    HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendRequestToHelpers');
+//    final results = await callable('f5bTwDrbTAOL0Qr6q7UTb1:APA91bFDcxHzAtyEZZm2Bf7Shm690HSEPNOoCwpS4MSCEiHq4rqzG_WAYeNwwaFIwzpA_3JCWix1e3i2fcoEbS1WuEZ6tuCJDSjNTEhkDQ3yMfKXM8pJRgtEaTtBnW7zt-ypL_60sJb4');
+//    print('push status: ' + results.toString());
   }
 
   updatingLocationOnFirebase(LocationData newLocation) async{

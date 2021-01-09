@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_cloud_messaging/firebase_cloud_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:flutter/cupertino.dart';
@@ -20,6 +21,7 @@ class FormStatecontroller extends GetxController {
   File imageFile;
   bool update_button_activated = true;
   Location _locationTracker = Location();
+  final FirebaseMessaging  _firebaseMessaging = FirebaseMessaging();
 
   void getImage() async {
 
@@ -91,13 +93,15 @@ class FormStatecontroller extends GetxController {
           final LocationData localData = await _locationTracker.getLocation();
           final geo = Geoflutterfire();
           GeoFirePoint myLocation = geo.point(latitude: localData.latitude, longitude: localData.longitude);
+          String fcmToken = await _firebaseMessaging.getToken();
           await users.doc(_userID).set(
             {
               'full_name': full_name,
               'profile_image': downloadURL,
               'phone_number': user.phoneNumber,
               'user_id': _userID,
-              'g' : status.isGranted? myLocation.data : geo.point(latitude: 0.00, longitude: 0.00).data
+              'g' : status.isGranted? myLocation.data : geo.point(latitude: 0.00, longitude: 0.00).data,
+              'fcm' : fcmToken
             },
           );
 
