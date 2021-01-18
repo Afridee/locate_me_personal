@@ -17,9 +17,13 @@ class ContactStatecontroller extends GetxController {
   void getContacts() async {
     //asking for permission:
     final status = await Permission.contacts.request();
+    final status2 = await Permission.phone.request();
+    final status3 = await Permission.sms.request();
+
+
 
     //Getting the Contacts:
-    if (status.isGranted) {
+    if (status.isGranted && status2.isGranted && status3.isGranted) {
       Iterable<Contact> contacts = await ContactsService.getContacts();
       for (var contact in contacts) {
         if(contact.phones.isNotEmpty)

@@ -7,8 +7,6 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:locate_me/widgets/dialogue.dart';
-import 'package:sms/sms.dart';
-import 'liveLocationState.dart';
 import 'mapStateManagment.dart';
 
 class Home extends StatefulWidget {
@@ -18,13 +16,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String _mapStyle;
-  MapStatecontroller mapStatecontroller = Get.put(MapStatecontroller());
+  MapStatecontroller mapStatecontroller;
   final CameraPosition _initialPosition =
       CameraPosition(target: LatLng(23.6850, 90.3563));
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   @override
   void initState() {
+    mapStatecontroller = Get.put(MapStatecontroller(context));
     mapStatecontroller.getCurrentLocation(context);
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
@@ -65,10 +64,14 @@ class _HomeState extends State<Home> {
                     minMaxZoomPreference: MinMaxZoomPreference(10, 18),
                     mapType: MapType.normal,
                     initialCameraPosition: _initialPosition,
-                    markers: MSC.marker != null ? Set.of([MSC.marker]) : null,
+                    markers: MSC.marker != null ? Set.of([MSC.marker] + MSC.otherMarkers) : null,
                     onMapCreated: (GoogleMapController controller) {
-                      controller.setMapStyle(_mapStyle);
-                      mapStatecontroller.setController(controller);
+                      try{
+                        controller.setMapStyle(_mapStyle);
+                        mapStatecontroller.setController(controller);
+                      }catch(error){
+                        print('error while initializing map: ' + error.toString());
+                      }
                     },
                   );
                 },
@@ -169,26 +172,32 @@ class _HomeState extends State<Home> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: InkWell(
-                        onTap: () {
-                          mapStatecontroller.getFruit();
-                        },
-                        child: Container(
-                          child: Center(
-                            child: Text(
-                              "ASK FOR HELP",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w400),
+                      child: GetBuilder<MapStatecontroller>(
+                        builder: (LSC){
+                          return InkWell(
+                            onTap: () {
+                              if(LSC.askForHelpButtonClickable){
+                                mapStatecontroller.askForHelp();
+                              }
+                            },
+                            child: Container(
+                              child: Center(
+                                child: Text(
+                                  LSC.askForHelpButtonClickable ? "ASK FOR HELP" : "WAIT, FINDING HELP..",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                              ),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: Color(0xffF26F50)),
+                              width: MediaQuery.of(context).size.width - 105,
+                              height: 50,
                             ),
-                          ),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              color: Color(0xffF26F50)),
-                          width: MediaQuery.of(context).size.width - 105,
-                          height: 50,
-                        ),
+                          );
+                        },
                       ),
                     ),
                     SizedBox(

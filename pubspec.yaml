@@ -48,10 +48,10 @@ dependencies:
   contacts_service: ^0.4.6
   hive: ^1.4.4+1
   hive_flutter: ^0.3.1
-  google_maps_flutter: ^1.0.6
+  google_maps_flutter: ^1.1.1
   location: ^3.0.0
   flutter_spinkit: "^4.1.2"
-  sms: ^0.2.4
+  sms: ^0.2.0
   shake: ^0.1.0
   firebase_cloud_messaging: ^4.0.4+1
   cloud_functions: ^0.7.2
