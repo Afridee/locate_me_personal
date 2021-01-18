@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_cloud_messaging/firebase_cloud_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:locate_me/widgets/dialogue.dart';
 import 'mapStateManagment.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fba;
 
 class Home extends StatefulWidget {
   @override
@@ -25,6 +27,17 @@ class _HomeState extends State<Home> {
   void initState() {
     mapStatecontroller = Get.put(MapStatecontroller(context));
     mapStatecontroller.getCurrentLocation(context);
+    try{
+      FirebaseFirestore.instance.collection('HelpRequests')
+          .where('helper_and_requester', arrayContains: fba.FirebaseAuth.instance.currentUser.uid)
+          .where('req_status',isEqualTo: 'accepted')
+          .where('requester_called_off',isEqualTo: false)
+          .snapshots().listen((event) {
+          mapStatecontroller.enable_help_request_collection_listener(context);
+      });
+    }catch(err){
+      print('Error in Homescreen init: ' + err.toString());
+    }
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
@@ -177,7 +190,7 @@ class _HomeState extends State<Home> {
                           return InkWell(
                             onTap: () {
                               if(LSC.askForHelpButtonClickable){
-                                mapStatecontroller.askForHelp();
+                                mapStatecontroller.askForHelp(context);
                               }
                             },
                             child: Container(

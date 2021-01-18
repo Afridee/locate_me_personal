@@ -35,6 +35,7 @@ class MapStatecontroller extends GetxController {
 
   //Constructor:
   MapStatecontroller(BuildContext context){
+    update();
     updateFcmToken();
     enable_shake();
     enable_help_request_collection_listener(context);
@@ -42,14 +43,19 @@ class MapStatecontroller extends GetxController {
 
   enable_help_request_collection_listener(BuildContext context){
      try{
+
+       if(help_request_collection_listener!=null){
+         help_request_collection_listener.cancel();
+       }
+
        help_request_collection_listener = FirebaseFirestore.instance.collection('HelpRequests')
            .where('helper_and_requester', arrayContains: fba.FirebaseAuth.instance.currentUser.uid)
            .where('req_status',isEqualTo: 'accepted')
            .where('requester_called_off',isEqualTo: false)
            .snapshots().listen((event) {
 
-         others.clear();
-         update();
+            others.clear();
+            update();
 
          event.docs.toList().forEach((element) {
            if(DateTime.now().isBefore(DateTime.fromMicrosecondsSinceEpoch(element.data()['expire_date'].microsecondsSinceEpoch))){
@@ -85,17 +91,33 @@ class MapStatecontroller extends GetxController {
   }
 
   enable_user_collection_listener(BuildContext context){
+
       try{
         user_collection_listener = FirebaseFirestore.instance.collection('Users')
             .where('user_id', arrayContainsAny: others_just_uid_list(others))
             .snapshots()
             .listen((event) {
-          otherMarkers.clear();
-          update();
+
+              otherMarkers.clear();
+              update();
 
           event.docs.toList().forEach((element) async{
 
-            Uint8List imageData = await getMarker(context, "assets/images/you_are_here.png");
+            bool helper = true;
+
+            others.forEach((others_element) {
+              if(others_element['id']==element.data()['user_id'][0]){
+                helper = (others_element['marker']== 'helper');
+              }
+            });
+
+            Uint8List imageData;
+
+            try{
+              imageData = await getMarker(context, helper ? "assets/images/helper_marker.png" : "assets/images/help_seeker_marker.png");
+            }catch(err){
+              print('error while setting image data: ' + err.toString());
+            }
 
             otherMarkers.add(
                 Marker(
@@ -107,11 +129,12 @@ class MapStatecontroller extends GetxController {
                     anchor: Offset(0.5, 1),
                     icon: BitmapDescriptor.fromBytes(imageData))
             );
+            update();
           });
-
-          update();
         });
       }catch(error){
+        otherMarkers.clear();
+        update();
         print('Error while enabling user collection listener: ' + error.toString());
       }
   }
@@ -164,7 +187,7 @@ class MapStatecontroller extends GetxController {
     update();
   }
 
-  Future<void> askForHelp() async {
+  Future<void> askForHelp(BuildContext context) async {
 
     //to stop the user from constantly clicking
     pauseAskForHelp();
@@ -221,6 +244,10 @@ class MapStatecontroller extends GetxController {
         });
       }
      });
+
+    //Timer(Duration(seconds: 5),(){});
+
+    //enable_help_request_collection_listener(context);
   }
   
   sendNotification(String fcmToken) async{
