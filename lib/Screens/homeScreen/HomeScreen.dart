@@ -73,6 +73,7 @@ class _HomeState extends State<Home> {
               GetBuilder<MapStatecontroller>(
                 builder: (MSC) {
                   return GoogleMap(
+                    polylines: MSC.polylines != null ? Set<Polyline>.of(MSC.polylines.values) : null,
                     scrollGesturesEnabled: !MSC.shareLiveLocation,
                     minMaxZoomPreference: MinMaxZoomPreference(10, 18),
                     mapType: MapType.normal,

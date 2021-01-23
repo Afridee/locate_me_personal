@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_cloud_messaging/firebase_cloud_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,6 +16,7 @@ import 'package:provider/provider.dart';
 import '../../Screens/loginPages/firebase_auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 class MapStatecontroller extends GetxController {
 
@@ -32,6 +34,11 @@ class MapStatecontroller extends GetxController {
   GeoPoint g;
   StreamSubscription help_request_collection_listener;
   StreamSubscription user_collection_listener;
+  // Object for PolylinePoints
+  PolylinePoints polylinePoints;
+  // Map storing polylines created by connecting
+  // two points
+  Map<PolylineId, Polyline> polylines = {};
 
   //Constructor:
   MapStatecontroller(BuildContext context){
@@ -39,6 +46,55 @@ class MapStatecontroller extends GetxController {
     updateFcmToken();
     enable_shake();
     enable_help_request_collection_listener(context);
+  }
+
+  // Create the polylines for showing the route between two places
+
+  _createPolylines(Marker start, List<Marker> destinations) async {
+
+    // Initializing PolylinePoints
+    polylinePoints = PolylinePoints();
+
+    // List of coordinates to join
+    List<LatLng> polylineCoordinates = [];
+
+    destinations.forEach((destination) async{
+      // Generating the list of coordinates to be used for
+      // drawing the polylines
+      PolylineResult result;
+      try{
+        result = await polylinePoints.getRouteBetweenCoordinates(
+          'AIzaSyAQBicVbY4o2H7w9ufjP0trTdxsVikfEjc',
+          PointLatLng(start.position.latitude, start.position.longitude),
+          PointLatLng(destination.position.latitude, destination.position.longitude),
+          travelMode: TravelMode.transit,
+        );
+      }catch(err){
+        print('Error while drawing polyline: ' + err.toString());
+      }
+
+      // Adding the coordinates to the list
+      if (result.points.isNotEmpty) {
+        result.points.forEach((PointLatLng point) {
+          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        });
+      }
+    });
+
+    // Defining an ID
+    PolylineId id = PolylineId('poly');
+
+    // Initializing Polyline
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Color(0xff410DA2),
+      points: polylineCoordinates,
+      width: 6,
+    );
+
+    // Adding the polyline to the map
+    polylines[id] = polyline;
+    update();
   }
 
   enable_help_request_collection_listener(BuildContext context){
@@ -60,17 +116,29 @@ class MapStatecontroller extends GetxController {
          event.docs.toList().forEach((element) {
            if(DateTime.now().isBefore(DateTime.fromMicrosecondsSinceEpoch(element.data()['expire_date'].microsecondsSinceEpoch))){
              if(element.data()['helper_id'] == fba.FirebaseAuth.instance.currentUser.uid){
-               others.add({
+
+               Map<String,dynamic> data = {
                  'id' : element.data()['requester_id'],
                  'marker' : 'requester'
-               });
-               update();
+               };
+
+               if(!others.contains(data)){
+                 others.add(data);
+                 update();
+               }
+
              }else{
-               others.add({
+
+               Map<String,dynamic> data = {
                  'id' : element.data()['helper_id'],
                  'marker' : 'helper'
-               });
-               update();
+               };
+
+               if(!others.contains(data)){
+                 others.add(data);
+                 update();
+               }
+
              }
            }
          });
@@ -130,6 +198,7 @@ class MapStatecontroller extends GetxController {
                     icon: BitmapDescriptor.fromBytes(imageData))
             );
             update();
+            _createPolylines(marker, otherMarkers);
           });
         });
       }catch(error){
@@ -237,17 +306,13 @@ class MapStatecontroller extends GetxController {
         helpRequests.add({
           'requester_id' : _userID,
           'helper_id' : element['id'],
-          'req_status' : 'accepted',
+          'req_status' : 'rejected',
           'requester_called_off' : false,
           'expire_date' : DateTime.now().add(Duration(days: 1)),
           'helper_and_requester': [_userID, element['id']]
         });
       }
      });
-
-    //Timer(Duration(seconds: 5),(){});
-
-    //enable_help_request_collection_listener(context);
   }
   
   sendNotification(String fcmToken) async{
@@ -367,7 +432,7 @@ class MapStatecontroller extends GetxController {
             _controller.animateCamera(
               CameraUpdate.newCameraPosition(
                 new CameraPosition(
-                  zoom: 18,
+                  zoom: 16,
                   //bearing: 192.8334901395799,
                   target: LatLng(newLocalData.latitude, newLocalData.longitude),
                   tilt: 0,

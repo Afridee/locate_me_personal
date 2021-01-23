@@ -56,6 +56,7 @@ dependencies:
   firebase_cloud_messaging: ^4.0.4+1
   cloud_functions: ^0.7.2
   geoflutterfire: ^2.2.1
+  flutter_polyline_points: ^0.2.4
 
 
   # The following adds the Cupertino Icons font to your application.
