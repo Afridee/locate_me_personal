@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:hive/hive.dart';
+import 'package:locate_me/widgets/dialogue.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../entry_phase_2.dart';
 
@@ -10,9 +11,7 @@ class ContactStatecontroller extends GetxController {
   List<Map<String,dynamic>> contact_list = new List<Map<String,dynamic>>();
   List<Map<String,dynamic>> selected_contact_list = new List<Map<String,dynamic>>();
 
-  ContactStatecontroller(){
-    getContacts();
-  }
+
 
   void getContacts() async {
     //asking for permission:
@@ -23,6 +22,9 @@ class ContactStatecontroller extends GetxController {
 
 
     //Getting the Contacts:
+    contact_list.clear();
+    update();
+
     if (status.isGranted && status2.isGranted && status3.isGranted) {
       Iterable<Contact> contacts = await ContactsService.getContacts();
       for (var contact in contacts) {
@@ -32,8 +34,8 @@ class ContactStatecontroller extends GetxController {
           'contact_info' : contact,
           'selected' : false
         });
+        update();
       }
-      update();
     } else if (status.isDenied) {
       print('Permission Denied');
     }
@@ -54,7 +56,7 @@ class ContactStatecontroller extends GetxController {
 
   }
 
-  void onDone(BuildContext context){
+  void onDone(BuildContext context) async{
 
     selected_contact_list.clear();
     update();
@@ -68,6 +70,9 @@ class ContactStatecontroller extends GetxController {
 
     if(selected_contact_list.length>=3 && selected_contact_list.length<=5){
       Box<Map> selected_contact_box = Hive.box<Map>("selected_contact_box");
+
+      await selected_contact_box.clear();
+
       selected_contact_list.forEach((contact) {
         selected_contact_box.put(contact['identifier'], contact['contact_info'].toMap());
       });
@@ -78,7 +83,8 @@ class ContactStatecontroller extends GetxController {
       );
       Navigator.of(context).push(route);
     }else{
-        print('Dude wtf!!');
+      appShowDialog(context, 'Uhm!!',
+          'please select atleast 3 contacts, but not more than 5', Color(0xffF26F50));
     }
   }
 

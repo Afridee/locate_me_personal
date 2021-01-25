@@ -161,7 +161,7 @@ class MapStatecontroller extends GetxController {
   enable_user_collection_listener(BuildContext context){
 
       try{
-        user_collection_listener = FirebaseFirestore.instance.collection('Users')
+        user_collection_listener = others_just_uid_list(others).isNotEmpty ?  FirebaseFirestore.instance.collection('Users')
             .where('user_id', arrayContainsAny: others_just_uid_list(others))
             .snapshots()
             .listen((event) {
@@ -200,7 +200,7 @@ class MapStatecontroller extends GetxController {
             update();
             _createPolylines(marker, otherMarkers);
           });
-        });
+        }) : null;
       }catch(error){
         otherMarkers.clear();
         update();
@@ -262,10 +262,8 @@ class MapStatecontroller extends GetxController {
     pauseAskForHelp();
 
     //getting the user's UID:
-    final auth = fba.FirebaseAuth.instance;
-    final fba.User user = auth.currentUser;
-    String _userID = user.uid;
-    
+    final auth  = Provider.of<FirebaseAuthService>(context, listen: false);
+
     //getting helper's list:
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getHelpers');
     final results = await callable({'latitude': marker.position.latitude,'longitude':marker.position.longitude});
@@ -276,7 +274,7 @@ class MapStatecontroller extends GetxController {
     helpers.forEach((element) async{
 
 
-      if(element['id']!=_userID) { //User himself gets cut off from the list
+      if(element['id']!= auth.userInfo['user_id'][0]) { //User himself gets cut off from the list
         FirebaseFirestore.instance.doc('Users/${element['id']}').get().then((value) => {
            sendNotification(value.data()['fcm'])
          });
@@ -302,14 +300,16 @@ class MapStatecontroller extends GetxController {
         print('error while checking if helper is occupied: ' + error.toString());
       }
 
-      if (!helper_occupied && _userID != element['id']) {
-        helpRequests.add({
-          'requester_id' : _userID,
+      if (!helper_occupied && auth.userInfo['user_id'][0] != element['id']) {
+        helpRequests.doc('${auth.userInfo['user_id'][0]}_${element['id']}').set({
+          'requester_id' : auth.userInfo['user_id'][0],
+          'requester_name' : auth.userInfo['full_name'],
+          'requester_image' : auth.userInfo['profile_image'],
           'helper_id' : element['id'],
           'req_status' : 'rejected',
           'requester_called_off' : false,
           'expire_date' : DateTime.now().add(Duration(days: 1)),
-          'helper_and_requester': [_userID, element['id']]
+          'helper_and_requester': [auth.userInfo['user_id'][0], element['id']]
         });
       }
      });
