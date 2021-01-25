@@ -14,6 +14,6 @@ class _EntryPhase2State extends State<EntryPhase2> {
 
   @override
   Widget build(BuildContext context) {
-    return Hive.box<Map>("selected_contact_box").isNotEmpty? Home() : Contacts();
+    return Hive.box<Map>("selected_contact_box").isNotEmpty? Home() : Contacts(willpop: false);
   }
 }

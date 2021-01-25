@@ -17,7 +17,7 @@ class SideDrawer extends StatefulWidget {
 class _SideDrawerState extends State<SideDrawer> {
   @override
   Widget build(BuildContext context) {
-    final auth  = Provider.of<FirebaseAuthService>(context, listen: true);
+    final auth  = Provider.of<FirebaseAuthService>(context, listen: false);
     return Drawer(
       child: Container(
         color: Color(0xff410DA2),

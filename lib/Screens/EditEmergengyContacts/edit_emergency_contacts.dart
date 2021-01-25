@@ -51,7 +51,7 @@ class _EditEmergencyContactsState extends State<EditEmergencyContacts> {
                    onTap: (){
                      Navigator.of(context).pop();
                      var route = new MaterialPageRoute(
-                       builder: (BuildContext context) => new Contacts(),
+                       builder: (BuildContext context) => new Contacts(willpop: true),
                      );
                      Navigator.of(context).push(route);
                    },
