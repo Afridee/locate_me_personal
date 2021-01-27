@@ -98,7 +98,7 @@ class FormStatecontroller extends GetxController {
             {
               'full_name': full_name,
               'profile_image': downloadURL,
-              'phone_number': user.phoneNumber,
+              'phone_number': [user.phoneNumber,user.phoneNumber.substring(3,user.phoneNumber.length)],
               'user_id': [_userID],
               'g' : status.isGranted? myLocation.data : geo.point(latitude: 0.00, longitude: 0.00).data,
               'fcm' : fcmToken

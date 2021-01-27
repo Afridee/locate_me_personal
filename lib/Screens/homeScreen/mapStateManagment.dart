@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms/sms.dart';
 import 'package:shake/shake.dart';
 import 'package:provider/provider.dart';
@@ -39,13 +40,25 @@ class MapStatecontroller extends GetxController {
   // Map storing polylines created by connecting
   // two points
   Map<PolylineId, Polyline> polylines = {};
+  SharedPreferences prefs;
 
   //Constructor:
   MapStatecontroller(BuildContext context){
+    assignPrefs();
     update();
     updateFcmToken();
     enable_shake();
     enable_help_request_collection_listener(context);
+  }
+
+  assignPrefs() async{
+    prefs = await SharedPreferences.getInstance();
+
+    if(prefs.getBool('enable_shake_detection')==null){
+      await prefs.setBool('enable_shake_detection', true);
+    }
+
+    update();
   }
 
   // Create the polylines for showing the route between two places
@@ -161,7 +174,7 @@ class MapStatecontroller extends GetxController {
   enable_user_collection_listener(BuildContext context){
 
       try{
-        user_collection_listener = others_just_uid_list(others).isNotEmpty ?  FirebaseFirestore.instance.collection('Users')
+        user_collection_listener = FirebaseFirestore.instance.collection('Users')
             .where('user_id', arrayContainsAny: others_just_uid_list(others))
             .snapshots()
             .listen((event) {
@@ -200,7 +213,7 @@ class MapStatecontroller extends GetxController {
             update();
             _createPolylines(marker, otherMarkers);
           });
-        }) : null;
+        });
       }catch(error){
         otherMarkers.clear();
         update();
@@ -340,18 +353,37 @@ class MapStatecontroller extends GetxController {
   send_SMS_Location_To_Trusted_Contacts(BuildContext context, LocationData location){
     Box<Map> selected_contact_box = Hive.box<Map>("selected_contact_box");
     final auth  = Provider.of<FirebaseAuthService>(context, listen: false);
+    final CollectionReference helpRequests = FirebaseFirestore.instance.collection('HelpRequests');
 
     selected_contact_box.values.toList().forEach((element) {
-//      print('sms sent to ${element['phones'].first['value']} : ' +
-//      "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}"
-//      );
-    sendSMS(number: '${element['phones'].first['value']}',
-            message: "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}");
+
+      FirebaseFirestore.instance.collection('Users').where('phone_number', arrayContains: element['phones'].first['value'].replaceAll('-', '')).get().then((doc){
+         if(doc.docs.isNotEmpty){
+
+           print(doc.docs.toList());
+
+           sendNotification(doc.docs.toList()[0].data()['fcm']);
+
+           helpRequests.doc('${auth.userInfo['user_id'][0]}_${doc.docs.toList()[0].data()['user_id'][0]}').set({
+             'requester_id' : auth.userInfo['user_id'][0],
+             'requester_name' : auth.userInfo['full_name'],
+             'requester_image' : auth.userInfo['profile_image'],
+             'helper_id' : doc.docs.toList()[0].data()['user_id'][0],
+             'req_status' : 'accepted',
+             'requester_called_off' : false,
+             'expire_date' : DateTime.now().add(Duration(days: 1)),
+             'helper_and_requester': [auth.userInfo['user_id'][0], doc.docs.toList()[0].data()['user_id'][0]]
+           });
+         }else{
+           sendSMS(number: '${element['phones'].first['value']}',
+               message: "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}");
+         }
+      });
     });
   }
 
   void pauseSMS_sender() {
-    Timer(Duration(seconds: 20),(){
+    Timer(Duration(seconds: 300),(){
       pauseSMS = !pauseSMS ;
       update();
     });
@@ -367,6 +399,7 @@ class MapStatecontroller extends GetxController {
   enable_shake(){
     detector = ShakeDetector.waitForStart(
         onPhoneShake: () {
+          if(prefs.getBool('enable_shake_detection'))
           toggleButton_for_shareLive();
         }
     );
