@@ -6,6 +6,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:locate_me/widgets/Schedule_notification.dart';
+import 'dart:math' as Dmath;
 import '../../widgets/Drawer.dart';
 import '../../widgets/dialogue.dart';
 import 'mapStateManagment.dart';
@@ -47,16 +49,29 @@ class _HomeState extends State<Home> {
     });
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        appShowDialog(context, message['notification']['title'],
-            message['notification']['body'], Colors.red);
+        //generate random ID for notification:
+        var rng = new Dmath.Random();
+        int generatedID = rng.nextInt(100);
+        scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
+        setState(() {});
+//        appShowDialog(context, message['notification']['title'],
+//            message['notification']['body'], Colors.red);
       },
       onLaunch: (Map<String, dynamic> message) async {
-        appShowDialog(context, message['notification']['title'],
-            message['notification']['body'], Colors.red);
+        var rng = new Dmath.Random();
+        int generatedID = rng.nextInt(100);
+        scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
+        setState(() {});
+//        appShowDialog(context, message['notification']['title'],
+//            message['notification']['body'], Colors.red);
       },
       onResume: (Map<String, dynamic> message) async {
-        appShowDialog(context, message['notification']['title'],
-            message['notification']['body'], Colors.red);
+        var rng = new Dmath.Random();
+        int generatedID = rng.nextInt(100);
+        scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
+        setState(() {});
+//        appShowDialog(context, message['notification']['title'],
+//            message['notification']['body'], Colors.red);
       },
     );
     super.initState();

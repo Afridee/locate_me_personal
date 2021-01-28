@@ -42,13 +42,13 @@ class MapStatecontroller extends GetxController {
   Map<PolylineId, Polyline> polylines = {};
   SharedPreferences prefs;
 
+
   //Constructor:
   MapStatecontroller(BuildContext context){
-    assignPrefs();
-    update();
     updateFcmToken();
     enable_shake();
     enable_help_request_collection_listener(context);
+    assignPrefs();
   }
 
   assignPrefs() async{
@@ -202,6 +202,9 @@ class MapStatecontroller extends GetxController {
 
             otherMarkers.add(
                 Marker(
+                    infoWindow: InfoWindow(
+                      title: element.data()['full_name'],
+                    ),
                     markerId: MarkerId(element.data()['user_id'][0]),
                     position: LatLng(element.data()['g']['geopoint'].latitude,element.data()['g']['geopoint'].longitude),
                     draggable: false,
@@ -211,7 +214,9 @@ class MapStatecontroller extends GetxController {
                     icon: BitmapDescriptor.fromBytes(imageData))
             );
             update();
-            _createPolylines(marker, otherMarkers);
+            if(!marker.isNull){
+              _createPolylines(marker, otherMarkers);
+            }
           });
         });
       }catch(error){
@@ -331,7 +336,7 @@ class MapStatecontroller extends GetxController {
   sendNotification(String fcmToken) async{
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendRequestToHelpers');
     final results = await callable(fcmToken);
-    print('push status: ' + results.toString());
+    print('push status: ' + results.data.toString());
   }
 
   updatingLocationOnFirebase(LocationData newLocation) async{
@@ -354,32 +359,44 @@ class MapStatecontroller extends GetxController {
     Box<Map> selected_contact_box = Hive.box<Map>("selected_contact_box");
     final auth  = Provider.of<FirebaseAuthService>(context, listen: false);
     final CollectionReference helpRequests = FirebaseFirestore.instance.collection('HelpRequests');
+    List<String> phone_numbers = new List<String>();
 
-    selected_contact_box.values.toList().forEach((element) {
+    selected_contact_box.values.toList().forEach((element){
+      phone_numbers.add(element['phones'].first['value'].replaceAll('-', ''));
+    });
 
-      FirebaseFirestore.instance.collection('Users').where('phone_number', arrayContains: element['phones'].first['value'].replaceAll('-', '')).get().then((doc){
-         if(doc.docs.isNotEmpty){
+    FirebaseFirestore.instance.collection('Users').where('phone_number', arrayContainsAny: phone_numbers).get().then((doc){
 
-           print(doc.docs.toList());
+      List<String> existing_numbers = new List<String>();
 
-           sendNotification(doc.docs.toList()[0].data()['fcm']);
+      doc.docs.toList().forEach((element) async{
+        existing_numbers.add(element.data()['phone_number'][1]);
+        sendNotification(element.data()['fcm']);
+        await helpRequests.doc('${auth.userInfo['user_id'][0]}_${element.data()['user_id'][0]}').set({
+          'requester_id' : auth.userInfo['user_id'][0],
+          'requester_name' : auth.userInfo['full_name'],
+          'requester_image' : auth.userInfo['profile_image'],
+          'helper_id' : element.data()['user_id'][0],
+          'req_status' : 'accepted',
+          'requester_called_off' : false,
+          'expire_date' : DateTime.now().add(Duration(days: 1)),
+          'helper_and_requester': [auth.userInfo['user_id'][0], element.data()['user_id'][0]]
+        });
+      });
 
-           helpRequests.doc('${auth.userInfo['user_id'][0]}_${doc.docs.toList()[0].data()['user_id'][0]}').set({
-             'requester_id' : auth.userInfo['user_id'][0],
-             'requester_name' : auth.userInfo['full_name'],
-             'requester_image' : auth.userInfo['profile_image'],
-             'helper_id' : doc.docs.toList()[0].data()['user_id'][0],
-             'req_status' : 'accepted',
-             'requester_called_off' : false,
-             'expire_date' : DateTime.now().add(Duration(days: 1)),
-             'helper_and_requester': [auth.userInfo['user_id'][0], doc.docs.toList()[0].data()['user_id'][0]]
-           });
-         }else{
-           sendSMS(number: '${element['phones'].first['value']}',
+      print('Existing Numbers:' + existing_numbers.toString());
+      print('Phone Numbers:' + phone_numbers.toString());
+
+      phone_numbers.forEach((element){
+         print(!existing_numbers.contains(element));
+         if(!existing_numbers.contains(element)){
+           sendSMS(number: element,
                message: "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}");
          }
       });
     });
+
+
   }
 
   void pauseSMS_sender() {
@@ -392,8 +409,12 @@ class MapStatecontroller extends GetxController {
   }
 
   void sendSMS({String number, String message}){
-      SmsSender sender = new SmsSender();
-      sender.sendSms(new SmsMessage(number, message));
+      try{
+        SmsSender sender = new SmsSender();
+        sender.sendSms(new SmsMessage(number, message));
+      }catch(err){
+        print('Error while sending message: ' + err.toString());
+      }
   }
 
   enable_shake(){
