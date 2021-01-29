@@ -66,40 +66,40 @@ class _HelpRequestsState extends State<HelpRequests> {
               ),
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: Colors.white,
-              child: Center(
-                child: InkWell(
-                  onTap: (){
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
-                    child: Center(
-                        child: Text(
-                      'Done',
-                      style: TextStyle(fontSize: 17, color: Colors.white),
-                    )),
-                    height: 50,
-                    width: 300,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0xff410DA2).withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 7,
-                          offset: Offset(0, 3), // changes position of shadow
-                        ),
-                      ],
-                      color: Color(0xff410DA2),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          )
+//          Expanded(
+//            flex: 1,
+//            child: Container(
+//              color: Colors.white,
+//              child: Center(
+//                child: InkWell(
+//                  onTap: (){
+//                    Navigator.of(context).pop();
+//                  },
+//                  child: Container(
+//                    child: Center(
+//                        child: Text(
+//                      'Done',
+//                      style: TextStyle(fontSize: 17, color: Colors.white),
+//                    )),
+//                    height: 50,
+//                    width: 300,
+//                    decoration: BoxDecoration(
+//                      boxShadow: [
+//                        BoxShadow(
+//                          color: Color(0xff410DA2).withOpacity(0.5),
+//                          spreadRadius: 2,
+//                          blurRadius: 7,
+//                          offset: Offset(0, 3), // changes position of shadow
+//                        ),
+//                      ],
+//                      color: Color(0xff410DA2),
+//                      borderRadius: BorderRadius.circular(30),
+//                    ),
+//                  ),
+//                ),
+//              ),
+//            ),
+//          )
         ],
       ),
     );

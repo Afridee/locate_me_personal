@@ -43,14 +43,19 @@ class _ContactsState extends State<Contacts> {
       onWillPop: () async => widget.willpop,
       child: Scaffold(
         appBar: AppBar(
-          title: formTextfield(
-            label: 'Search Contacts..',
-            textController: searchQuery,
-            inputType: TextInputType.text,
-            hintText: 'By name or number..',
-            prefixIcon: Icon(
-              Icons.search,
-              color: Colors.grey,
+          centerTitle: false,
+          titleSpacing: 0,
+          title: Transform(
+            transform:  Matrix4.translationValues(-40.0, 0.0, 0.0),
+            child: formTextfield(
+              label: 'Search Contacts..',
+              textController: searchQuery,
+              inputType: TextInputType.text,
+              hintText: 'By name or number..',
+              prefixIcon: Icon(
+                Icons.search,
+                color: Colors.grey,
+              ),
             ),
           ),
           elevation: 0,
@@ -92,24 +97,76 @@ class _ContactsState extends State<Contacts> {
           ),
           child: GetBuilder<ContactStatecontroller>(
             builder: (csm) {
-              return ListView.builder(
-                itemCount: csm.contact_list.length,
-                itemBuilder: (context, index) {
-                  return csm.contact_list[index]['contact_info'].displayName.trim()
-                              .toLowerCase()
-                              .contains(
-                                searchQuery.text.trim().toLowerCase(),
-                              ) || csm.contact_list[index]['contact_info'].phones.first.value.trim()
-                      .toLowerCase()
-                      .contains(
-                    searchQuery.text.trim().toLowerCase(),
-                  )
-                      ? ContactListTile(contact: csm.contact_list[index])
-                      : Container(
-                       height: 0,
-                       width: 0,
-                  );
-                },
+              return Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: csm.contact_list.length,
+                        itemBuilder: (context,index){
+                          return csm.contact_list[index]['selected'] ?  Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      csm.contact_list[index]['contact_info'].displayName,
+                                      style: TextStyle(
+                                          color: Colors.white
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    color: Colors.white,
+                                    icon: Icon(Icons.remove_circle),
+                                    onPressed: (){
+                                      _ContactStatecontroller.changeSelectedStat(csm.contact_list[index]['identifier']);
+                                    },
+                                  )
+                                ],
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xffF17350),
+                                    Color(0xffFF5050),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ) : Container();
+                        },
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 9,
+                    child: ListView.builder(
+                      itemCount: csm.contact_list.length,
+                      itemBuilder: (context, index) {
+                        return csm.contact_list[index]['contact_info'].displayName.trim()
+                                    .toLowerCase()
+                                    .contains(
+                                      searchQuery.text.trim().toLowerCase(),
+                                    ) || csm.contact_list[index]['contact_info'].phones.first.value.trim()
+                            .toLowerCase()
+                            .contains(
+                          searchQuery.text.trim().toLowerCase(),
+                        )
+                            ? ContactListTile(contact: csm.contact_list[index])
+                            : Container(
+                             height: 0,
+                             width: 0,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               );
             },
           ),
