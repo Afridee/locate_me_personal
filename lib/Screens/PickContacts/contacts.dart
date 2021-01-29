@@ -42,6 +42,7 @@ class _ContactsState extends State<Contacts> {
     return WillPopScope(
       onWillPop: () async => widget.willpop,
       child: Scaffold(
+        resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           centerTitle: false,
           titleSpacing: 0,

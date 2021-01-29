@@ -80,7 +80,7 @@ class MapStatecontroller extends GetxController {
           'AIzaSyAQBicVbY4o2H7w9ufjP0trTdxsVikfEjc',
           PointLatLng(start.position.latitude, start.position.longitude),
           PointLatLng(destination.position.latitude, destination.position.longitude),
-          travelMode: TravelMode.transit,
+          travelMode: TravelMode.driving,
         );
       }catch(err){
         print('Error while drawing polyline: ' + err.toString());

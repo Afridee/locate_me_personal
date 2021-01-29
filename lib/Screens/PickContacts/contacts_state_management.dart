@@ -12,9 +12,9 @@ class ContactStatecontroller extends GetxController {
   List<Map<String,dynamic>> selected_contact_list = new List<Map<String,dynamic>>();
 
 
-
   void getContacts() async {
     //asking for permission:
+
     final status = await Permission.contacts.request();
     final status2 = await Permission.phone.request();
     final status3 = await Permission.sms.request();
