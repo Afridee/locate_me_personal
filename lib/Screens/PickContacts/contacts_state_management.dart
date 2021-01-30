@@ -11,6 +11,12 @@ class ContactStatecontroller extends GetxController {
   List<Map<String,dynamic>> contact_list = new List<Map<String,dynamic>>();
   List<Map<String,dynamic>> selected_contact_list = new List<Map<String,dynamic>>();
 
+  ContactStatecontroller(){
+    if(contact_list.isEmpty){
+      getContacts();
+    }
+  }
+
 
   void getContacts() async {
     //asking for permission:

@@ -56,10 +56,10 @@ class _SideDrawerState extends State<SideDrawer> {
                 height: 100,
                 width: 100,
                 child: ClipOval(
-                  child: Image.network(
+                  child: auth.userInfo['profile_image']!=null? Image.network(
                     auth.userInfo['profile_image'],
                     fit: BoxFit.cover,
-                  ),
+                  ) : Container(),
                 ),
               ),
             ),
@@ -67,7 +67,7 @@ class _SideDrawerState extends State<SideDrawer> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  '${auth.userInfo['full_name']}',
+                  auth.userInfo['full_name']!=null? '${auth.userInfo['full_name']}' : 'Loading..',
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w400,

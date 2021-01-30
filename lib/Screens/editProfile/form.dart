@@ -143,14 +143,6 @@ class _formState extends State<form> {
     return AppBar(
         elevation: 0.0,
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: Color(0xff959595),
-            size: 16,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
         centerTitle: true,
         title: RichText(
           text: TextSpan(

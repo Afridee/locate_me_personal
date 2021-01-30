@@ -23,7 +23,6 @@ class _ContactsState extends State<Contacts> {
   @override
   void initState() {
     _ContactStatecontroller = Get.put(ContactStatecontroller());
-    _ContactStatecontroller.getContacts();
     searchQuery = new TextEditingController();
     searchQuery.addListener(() {
       setState(() {});

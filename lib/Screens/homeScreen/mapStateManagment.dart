@@ -362,7 +362,7 @@ class MapStatecontroller extends GetxController {
     List<String> phone_numbers = new List<String>();
 
     selected_contact_box.values.toList().forEach((element){
-      phone_numbers.add(element['phones'].first['value'].replaceAll('-', ''));
+      phone_numbers.add(element['phones'].first['value'].replaceAll('-', '').replaceAll('+880', '0').replaceAll('+44','0').toString().replaceAll(' ',''));
     });
 
     FirebaseFirestore.instance.collection('Users').where('phone_number', arrayContainsAny: phone_numbers).get().then((doc){
@@ -392,11 +392,12 @@ class MapStatecontroller extends GetxController {
          if(!existing_numbers.contains(element)){
            sendSMS(number: element,
                message: "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}");
+         }else{
+           sendSMS(number: element,
+               message: "${auth.userInfo['full_name']} may be in danger, Please open your locate me app to see his/her live location");
          }
       });
     });
-
-
   }
 
   void pauseSMS_sender() {
