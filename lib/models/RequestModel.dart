@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geocoder/geocoder.dart';
 
 RequestModel requestModelFromJson(String str) => RequestModel.fromJson(json.decode(str));
 
@@ -30,6 +31,35 @@ class RequestModel {
   bool requesterCalledOff;
   Timestamp expireDate;
   List<String> helperAndRequester;
+
+  Future<String> getRequesterLocationName() async{
+    double latt = 0;
+    double long = 0;
+
+    await FirebaseFirestore.instance.collection('Users').doc(requesterId).get().then((value){
+      latt = value.data()['g']['geopoint'].latitude;
+      long = value.data()['g']['geopoint'].longitude;
+    });
+
+    final coordinates = new Coordinates(latt, long);
+    final addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    final first = addresses.first;
+
+    return "${first.featureName} : ${first.addressLine}".toString();
+  }
+
+  AcceptRejectToggle(){
+    try{
+      final CollectionReference helpRequests = FirebaseFirestore.instance.collection('HelpRequests');
+
+      helpRequests.doc('${requesterId}_${helperId}').update({
+        'req_status' : reqStatus=='rejected' ? 'accepted' : 'rejected'
+      });
+
+    }catch(error){
+      print( 'Error while accepting request' + error.toString());
+    }
+  }
 
   factory RequestModel.fromJson(Map<String, dynamic> json) => RequestModel(
     requesterId: json["requester_id"],

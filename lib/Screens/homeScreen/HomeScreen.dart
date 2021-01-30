@@ -11,11 +11,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show SystemChrome, rootBundle;
 import 'package:locate_me/Screens/helpRequests/help_requests.dart';
 import 'package:locate_me/widgets/Schedule_notification.dart';
+import 'package:locate_me/widgets/help_request_dialogue.dart';
 import 'dart:math' as Dmath;
 import '../../widgets/Drawer.dart';
 import '../../widgets/dialogue.dart';
 import 'mapStateManagment.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fba;
+import 'package:locate_me/models/RequestModel.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -32,6 +34,7 @@ class _HomeState extends State<Home> {
       CameraPosition(target: LatLng(23.6850, 90.3563));
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   StreamSubscription stream1;
+  StreamSubscription stream2;
 
 
   navBarOnTap(int pageIndex) {
@@ -53,6 +56,25 @@ class _HomeState extends State<Home> {
     pageController = PageController(initialPage: 0);
     mapStatecontroller = Get.put(MapStatecontroller(context));
     mapStatecontroller.getCurrentLocation(context);
+    try {
+      stream2 = FirebaseFirestore.instance
+          .collection('HelpRequests')
+          .where('helper_id',
+          isEqualTo: fba.FirebaseAuth.instance.currentUser.uid)
+          .where('requester_called_off', isEqualTo: false)
+          .where('req_status',isEqualTo: 'rejected')
+          .snapshots()
+          .listen((event) {
+        event.docs.toList().forEach((element) {
+          if(DateTime.now().isBefore(DateTime.fromMicrosecondsSinceEpoch(element.data()['expire_date'].microsecondsSinceEpoch))){
+            appShowHelpDialog(context, RequestModel.fromJson(element.data()));
+          }
+        });
+      },
+      );
+    } catch (err) {
+      print('Error in HelpRequests init: ' + err.toString());
+    }
     try {
       stream1 = FirebaseFirestore.instance
           .collection('HelpRequests')
@@ -77,24 +99,18 @@ class _HomeState extends State<Home> {
         int generatedID = rng.nextInt(100);
         scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
         setState(() {});
-//        appShowDialog(context, message['notification']['title'],
-//            message['notification']['body'], Colors.red);
       },
       onLaunch: (Map<String, dynamic> message) async {
         var rng = new Dmath.Random();
         int generatedID = rng.nextInt(100);
         scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
         setState(() {});
-//        appShowDialog(context, message['notification']['title'],
-//            message['notification']['body'], Colors.red);
       },
       onResume: (Map<String, dynamic> message) async {
         var rng = new Dmath.Random();
         int generatedID = rng.nextInt(100);
         scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
         setState(() {});
-//        appShowDialog(context, message['notification']['title'],
-//            message['notification']['body'], Colors.red);
       },
     );
     super.initState();
@@ -104,6 +120,9 @@ class _HomeState extends State<Home> {
   void dispose() {
     if(!stream1.isNull){
       stream1.cancel();
+    }
+    if(!stream2.isNull){
+      stream2.cancel();
     }
     if(!mapStatecontroller.help_request_collection_listener.isNull){
       mapStatecontroller.help_request_collection_listener.cancel();

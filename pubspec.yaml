@@ -59,6 +59,7 @@ dependencies:
   flutter_polyline_points: ^0.2.4
   shared_preferences: ^0.5.12+4
   flutter_local_notifications: ^3.0.3
+  geocoder: ^0.2.1
 
 
 

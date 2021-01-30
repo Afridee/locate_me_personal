@@ -3,13 +3,32 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../models/RequestModel.dart';
 
-class requestListTile extends StatelessWidget {
+class requestListTile extends StatefulWidget {
   const requestListTile({
     Key key,
     @required this.request,
   }) : super(key: key);
 
   final RequestModel request;
+
+  @override
+  _requestListTileState createState() => _requestListTileState();
+}
+
+class _requestListTileState extends State<requestListTile> {
+
+  String LocationName = 'Loading...';
+
+  setLocationName() async{
+    LocationName = await widget.request.getRequesterLocationName();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    setLocationName();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,33 +40,31 @@ class requestListTile extends StatelessWidget {
             width: 50,
             child: ClipOval(
               child: Image.network(
-                request.requesterImage,
+                widget.request.requesterImage,
                 fit: BoxFit.cover,
               ),
             ),
           ),
           title: Text(
-            request.requesterName,
+            widget.request.requesterName,
             style: TextStyle(fontSize: 20),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              LocationName,
+              style: TextStyle(fontSize: 10),
+            ),
           ),
           trailing: InkWell(
             onTap: (){
-              try{
-                final CollectionReference helpRequests = FirebaseFirestore.instance.collection('HelpRequests');
-
-                helpRequests.doc('${request.requesterId}_${request.helperId}').update({
-                  'req_status' : request.reqStatus=='rejected' ? 'accepted' : 'rejected'
-                });
-
-              }catch(error){
-                 print( 'Error while accepting request' + error.toString());
-              }
+                widget.request.AcceptRejectToggle();
             },
             child: Container(
               child: Center(
                 child: Text(
-                  request.reqStatus=='rejected'? 'accept' : 'accepted',
-                  style: TextStyle(color:request.reqStatus=='rejected'? Colors.green : Colors.white),
+                  widget.request.reqStatus=='rejected'? 'accept' : 'accepted',
+                  style: TextStyle(color:widget.request.reqStatus=='rejected'? Colors.green : Colors.white),
                 ),
               ),
               height: 40,
@@ -61,7 +78,7 @@ class requestListTile extends StatelessWidget {
                     offset: Offset(0, 2), // changes position of shadow
                   ),
                 ],
-                color:request.reqStatus=='rejected'? Colors.white : Colors.green,
+                color:widget.request.reqStatus=='rejected'? Colors.white : Colors.green,
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
