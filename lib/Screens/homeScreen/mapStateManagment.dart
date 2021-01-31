@@ -55,7 +55,7 @@ class MapStatecontroller extends GetxController {
     prefs = await SharedPreferences.getInstance();
 
     if(prefs.getBool('enable_shake_detection')==null){
-      await prefs.setBool('enable_shake_detection', true);
+      await prefs.setBool('enable_shake_detection', false);
     }
 
     update();
@@ -377,7 +377,7 @@ class MapStatecontroller extends GetxController {
           'requester_name' : auth.userInfo['full_name'],
           'requester_image' : auth.userInfo['profile_image'],
           'helper_id' : element.data()['user_id'][0],
-          'req_status' : 'accepted',
+          'req_status' : 'rejected',
           'requester_called_off' : false,
           'expire_date' : DateTime.now().add(Duration(days: 1)),
           'helper_and_requester': [auth.userInfo['user_id'][0], element.data()['user_id'][0]]

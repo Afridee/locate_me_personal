@@ -26,7 +26,7 @@ class _SideDrawerState extends State<SideDrawer> {
     prefs = await SharedPreferences.getInstance();
 
     if (prefs.getBool('enable_shake_detection') == null) {
-      await prefs.setBool('enable_shake_detection', true);
+      await prefs.setBool('enable_shake_detection', false);
       enable_shake_detection = prefs.getBool('enable_shake_detection');
     } else {
       enable_shake_detection = prefs.getBool('enable_shake_detection');
