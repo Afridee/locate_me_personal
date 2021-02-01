@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_cloud_messaging/firebase_cloud_messaging.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,7 @@ import 'package:locate_me/widgets/Schedule_notification.dart';
 import 'package:locate_me/widgets/help_request_dialogue.dart';
 import 'dart:math' as Dmath;
 import '../../widgets/Drawer.dart';
-import '../../widgets/dialogue.dart';
+import 'ChooseContactsToShareLive.dart';
 import 'mapStateManagment.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:locate_me/models/RequestModel.dart';
@@ -193,105 +192,37 @@ class _HomeState extends State<Home> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "SHARE LIVE LOCATION",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ),
-                                GetBuilder<MapStatecontroller>(
-                                  builder: (LSC) {
-                                    return AnimatedContainer(
-                                      duration: Duration(milliseconds: 200),
-                                      height: 40.0,
-                                      width: 70,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                          BorderRadius.circular(20.0),
-                                          color: LSC.shareLiveLocation
-                                              ? Colors.greenAccent[100]
-                                              : Colors.redAccent[100]),
-                                      child: Stack(
-                                        children: <Widget>[
-                                          AnimatedPositioned(
-                                            duration: Duration(milliseconds: 200),
-                                            curve: Curves.easeIn,
-                                            top: 3.0,
-                                            left: LSC.shareLiveLocation
-                                                ? 30.0
-                                                : 0.0,
-                                            right: LSC.shareLiveLocation
-                                                ? 0.0
-                                                : 30.0,
-                                            child: InkWell(
-                                              onTap: () {
-                                                mapStatecontroller
-                                                    .toggleButton_for_shareLive();
-                                                if (LSC.shareLiveLocation) {
-                                                  appShowDialog(
-                                                      context,
-                                                      'Live Location On',
-                                                      'Your location is being shared with your trusted contacts',
-                                                      Color(0xff410DA2));
-                                                }
-                                              },
-                                              child: AnimatedSwitcher(
-                                                duration:
-                                                Duration(milliseconds: 200),
-                                                transitionBuilder: (Widget child,
-                                                    Animation<double> animation) {
-                                                  return RotationTransition(
-                                                    child: child,
-                                                    turns: animation,
-                                                  );
-                                                },
-                                                child: LSC.shareLiveLocation
-                                                    ? Icon(
-                                                  Icons.check_circle,
-                                                  color: Colors.green,
-                                                  size: 35.0,
-                                                  key: UniqueKey(),
-                                                )
-                                                    : Icon(
-                                                  Icons
-                                                      .remove_circle_outline,
-                                                  color: Colors.red,
-                                                  size: 35.0,
-                                                  key: UniqueKey(),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
+                        child: InkWell(
+                          onTap: (){
+                            var route = new MaterialPageRoute(
+                              builder: (BuildContext context) => new ChooseContactsToShareLive(),
+                            );
+                            Navigator.of(context).push(route);
+                          },
+                          child: Container(
+                            child: Center(
+                              child: Text(
+                                "SHARE LIVE LOCATION",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400),
+                              ),
                             ),
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xff410DA2).withOpacity(0.5),
+                                    spreadRadius: 1,
+                                    blurRadius: 7,
+                                    offset: Offset(0, 2), // changes position of shadow
+                                  ),
+                                ],
+                                borderRadius: BorderRadius.circular(30),
+                                color: Color(0xff410DA2)),
+                            width: MediaQuery.of(context).size.width - 105,
+                            height: 50,
                           ),
-                          decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0xff410DA2).withOpacity(0.5),
-                                  spreadRadius: 1,
-                                  blurRadius: 7,
-                                  offset: Offset(0, 2), // changes position of shadow
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(30),
-                              color: Color(0xff410DA2)),
-                          width: MediaQuery.of(context).size.width - 105,
-                          height: 50,
                         ),
                       ),
                       Padding(

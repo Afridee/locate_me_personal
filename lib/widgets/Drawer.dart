@@ -4,7 +4,6 @@ import 'package:locate_me/Screens/AboutUs.dart';
 import 'package:locate_me/Screens/PrivacyPolicy.dart';
 import 'package:locate_me/Screens/UserGuidelines.dart';
 import '../Screens/EditEmergengyContacts/edit_emergency_contacts.dart';
-import '../Screens/helpRequests/help_requests.dart';
 import '../Screens/loginPages/firebase_auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

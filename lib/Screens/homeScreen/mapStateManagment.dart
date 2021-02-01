@@ -23,12 +23,13 @@ class MapStatecontroller extends GetxController {
 
   GoogleMapController _controller;
   Location _locationTracker = Location();
+  LocationData users_current_location;
+  List<String> selectedContacts = new List<String>();
   Marker marker;
   List<Marker> otherMarkers = new List<Marker>();
   StreamSubscription _locationSubscription;
   bool shareLiveLocation = false;
   ShakeDetector detector;
-  bool pauseSMS = false;
   bool updateLocation = true;
   bool askForHelpButtonClickable = true;
   List<Map<String, dynamic>> others = new List<Map<String, dynamic>>();
@@ -49,6 +50,26 @@ class MapStatecontroller extends GetxController {
     enable_shake();
     enable_help_request_collection_listener(context);
     assignPrefs();
+    initializeSelectedContacts();
+  }
+
+  chooseFromSelectedContacts(String Number){
+    if(selectedContacts.contains(Number)){
+      selectedContacts.remove(Number);
+      update();
+    }else{
+      selectedContacts.add(Number);
+      update();
+    }
+  }
+
+  initializeSelectedContacts(){
+    Box<Map> selected_contact_box = Hive.box<Map>("selected_contact_box");
+
+    selected_contact_box.values.toList().forEach((element){
+      selectedContacts.add(element['phones'].first['value'].replaceAll('-', '').replaceAll('+880', '0').replaceAll('+44','0').toString().replaceAll(' ',''));
+      update();
+    });
   }
 
   assignPrefs() async{
@@ -355,58 +376,47 @@ class MapStatecontroller extends GetxController {
     });
   }
 
-  send_SMS_Location_To_Trusted_Contacts(BuildContext context, LocationData location){
-    Box<Map> selected_contact_box = Hive.box<Map>("selected_contact_box");
-    final auth  = Provider.of<FirebaseAuthService>(context, listen: false);
-    final CollectionReference helpRequests = FirebaseFirestore.instance.collection('HelpRequests');
-    List<String> phone_numbers = new List<String>();
+  send_SMS_Location_To_Trusted_Contacts(BuildContext context){
+    if(selectedContacts.isNotEmpty){
+      final auth  = Provider.of<FirebaseAuthService>(context, listen: false);
+      final CollectionReference helpRequests = FirebaseFirestore.instance.collection('HelpRequests');
 
-    selected_contact_box.values.toList().forEach((element){
-      phone_numbers.add(element['phones'].first['value'].replaceAll('-', '').replaceAll('+880', '0').replaceAll('+44','0').toString().replaceAll(' ',''));
-    });
 
-    FirebaseFirestore.instance.collection('Users').where('phone_number', arrayContainsAny: phone_numbers).get().then((doc){
 
-      List<String> existing_numbers = new List<String>();
+      FirebaseFirestore.instance.collection('Users').where('phone_number', arrayContainsAny: selectedContacts).get().then((doc){
 
-      doc.docs.toList().forEach((element) async{
-        existing_numbers.add(element.data()['phone_number'][1]);
-        sendNotification(element.data()['fcm']);
-        await helpRequests.doc('${auth.userInfo['user_id'][0]}_${element.data()['user_id'][0]}').set({
-          'requester_id' : auth.userInfo['user_id'][0],
-          'requester_name' : auth.userInfo['full_name'],
-          'requester_image' : auth.userInfo['profile_image'],
-          'helper_id' : element.data()['user_id'][0],
-          'req_status' : 'rejected',
-          'requester_called_off' : false,
-          'expire_date' : DateTime.now().add(Duration(days: 1)),
-          'helper_and_requester': [auth.userInfo['user_id'][0], element.data()['user_id'][0]]
+        List<String> existing_numbers = new List<String>();
+
+        doc.docs.toList().forEach((element) async{
+          existing_numbers.add(element.data()['phone_number'][1]);
+          sendNotification(element.data()['fcm']);
+          await helpRequests.doc('${auth.userInfo['user_id'][0]}_${element.data()['user_id'][0]}').set({
+            'requester_id' : auth.userInfo['user_id'][0],
+            'requester_name' : auth.userInfo['full_name'],
+            'requester_image' : auth.userInfo['profile_image'],
+            'helper_id' : element.data()['user_id'][0],
+            'req_status' : 'rejected',
+            'requester_called_off' : false,
+            'expire_date' : DateTime.now().add(Duration(days: 1)),
+            'helper_and_requester': [auth.userInfo['user_id'][0], element.data()['user_id'][0]]
+          });
+        });
+
+        print('Existing Numbers:' + existing_numbers.toString());
+        print('Phone Numbers:' + selectedContacts.toString());
+
+        selectedContacts.forEach((element){
+          print(!existing_numbers.contains(element));
+          if(!existing_numbers.contains(element)){
+            sendSMS(number: element,
+                message: "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${users_current_location.latitude},${users_current_location.longitude}");
+          }else{
+            sendSMS(number: element,
+                message: "${auth.userInfo['full_name']} may be in danger, Please open your locate me app to see his/her live location");
+          }
         });
       });
-
-      print('Existing Numbers:' + existing_numbers.toString());
-      print('Phone Numbers:' + phone_numbers.toString());
-
-      phone_numbers.forEach((element){
-         print(!existing_numbers.contains(element));
-         if(!existing_numbers.contains(element)){
-           sendSMS(number: element,
-               message: "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}");
-         }else{
-           sendSMS(number: element,
-               message: "${auth.userInfo['full_name']} may be in danger, Please open your locate me app to see his/her live location");
-         }
-      });
-    });
-  }
-
-  void pauseSMS_sender() {
-    Timer(Duration(seconds: 300),(){
-      pauseSMS = !pauseSMS ;
-      update();
-    });
-    pauseSMS  = !pauseSMS;
-    update();
+    }
   }
 
   void sendSMS({String number, String message}){
@@ -421,8 +431,9 @@ class MapStatecontroller extends GetxController {
   enable_shake(){
     detector = ShakeDetector.waitForStart(
         onPhoneShake: () {
-          if(prefs.getBool('enable_shake_detection'))
-          toggleButton_for_shareLive();
+          if(prefs.getBool('enable_shake_detection')){
+            ///todo : Action on shake
+          }
         }
     );
     detector.startListening();
@@ -471,12 +482,10 @@ class MapStatecontroller extends GetxController {
 
       _locationSubscription = _locationTracker.onLocationChanged.listen((newLocalData)
       {
-          updateMarkerAndCircle(newLocalData, imageData);
 
-          if(shareLiveLocation && !pauseSMS){
-            send_SMS_Location_To_Trusted_Contacts(context, newLocalData);
-            pauseSMS_sender();
-          }
+        users_current_location = newLocalData;
+
+        updateMarkerAndCircle(newLocalData, imageData);
 
           if(updateLocation){
             updatingLocationOnFirebase(newLocalData);

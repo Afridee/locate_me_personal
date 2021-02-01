@@ -19,7 +19,6 @@ class _EditEmergencyContactsState extends State<EditEmergencyContacts> {
   @override
   void initState() {
     selected_contact_box = Hive.box<Map>("selected_contact_box");
-    // TODO: implement initState
     super.initState();
   }
 
