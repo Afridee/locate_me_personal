@@ -11,6 +11,8 @@ import 'package:flutter/services.dart' show SystemChrome, rootBundle;
 import 'package:locate_me/Screens/helpRequests/help_requests.dart';
 import 'package:locate_me/widgets/Schedule_notification.dart';
 import 'package:locate_me/widgets/help_request_dialogue.dart';
+import 'package:shake/shake.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as Dmath;
 import '../../widgets/Drawer.dart';
 import 'ChooseContactsToShareLive.dart';
@@ -34,6 +36,22 @@ class _HomeState extends State<Home> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   StreamSubscription stream1;
   StreamSubscription stream2;
+  SharedPreferences prefs;
+  ShakeDetector detector;
+
+  enable_shake() async{
+    prefs = await SharedPreferences.getInstance();
+    detector = ShakeDetector.waitForStart(
+        onPhoneShake: () {
+          if(prefs.getBool('enable_shake_detection')){
+            if(mapStatecontroller.askForHelpButtonClickable){
+              mapStatecontroller.askForHelp(context);
+            }
+          }
+        }
+    );
+    detector.startListening();
+  }
 
 
   navBarOnTap(int pageIndex) {
@@ -54,6 +72,7 @@ class _HomeState extends State<Home> {
   void initState() {
     pageController = PageController(initialPage: 0);
     mapStatecontroller = Get.put(MapStatecontroller(context));
+    enable_shake();
     mapStatecontroller.getCurrentLocation(context);
     try {
       stream2 = FirebaseFirestore.instance
@@ -166,7 +185,7 @@ class _HomeState extends State<Home> {
                       polylines: MSC.polylines != null
                           ? Set<Polyline>.of(MSC.polylines.values)
                           : null,
-                      scrollGesturesEnabled: !MSC.shareLiveLocation,
+                      scrollGesturesEnabled: MSC.askForHelpButtonClickable,
                       minMaxZoomPreference: MinMaxZoomPreference(10, 18),
                       mapType: MapType.normal,
                       initialCameraPosition: _initialPosition,
@@ -273,7 +292,7 @@ class _HomeState extends State<Home> {
                 ),
                 GetBuilder<MapStatecontroller>(
                   builder: (context) {
-                    return context.shareLiveLocation
+                    return ! context.askForHelpButtonClickable
                         ? SpinKitRipple(
                       color: Color(0xff410DA2),
                       size: 60.0,

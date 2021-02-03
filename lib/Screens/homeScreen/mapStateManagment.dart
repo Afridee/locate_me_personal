@@ -29,7 +29,6 @@ class MapStatecontroller extends GetxController {
   List<Marker> otherMarkers = new List<Marker>();
   StreamSubscription _locationSubscription;
   bool shareLiveLocation = false;
-  ShakeDetector detector;
   bool updateLocation = true;
   bool askForHelpButtonClickable = true;
   List<Map<String, dynamic>> others = new List<Map<String, dynamic>>();
@@ -47,7 +46,6 @@ class MapStatecontroller extends GetxController {
   //Constructor:
   MapStatecontroller(BuildContext context){
     updateFcmToken();
-    enable_shake();
     enable_help_request_collection_listener(context);
     assignPrefs();
     initializeSelectedContacts();
@@ -132,119 +130,119 @@ class MapStatecontroller extends GetxController {
   }
 
   enable_help_request_collection_listener(BuildContext context){
-     try{
+    try{
 
-       if(help_request_collection_listener!=null){
-         help_request_collection_listener.cancel();
-       }
+      if(help_request_collection_listener!=null){
+        help_request_collection_listener.cancel();
+      }
 
-       help_request_collection_listener = FirebaseFirestore.instance.collection('HelpRequests')
-           .where('helper_and_requester', arrayContains: fba.FirebaseAuth.instance.currentUser.uid)
-           .where('req_status',isEqualTo: 'accepted')
-           .where('requester_called_off',isEqualTo: false)
-           .snapshots().listen((event) {
+      help_request_collection_listener = FirebaseFirestore.instance.collection('HelpRequests')
+          .where('helper_and_requester', arrayContains: fba.FirebaseAuth.instance.currentUser.uid)
+          .where('req_status',isEqualTo: 'accepted')
+          .where('requester_called_off',isEqualTo: false)
+          .snapshots().listen((event) {
 
-            others.clear();
-            update();
+        others.clear();
+        update();
 
-         event.docs.toList().forEach((element) {
-           if(DateTime.now().isBefore(DateTime.fromMicrosecondsSinceEpoch(element.data()['expire_date'].microsecondsSinceEpoch))){
-             if(element.data()['helper_id'] == fba.FirebaseAuth.instance.currentUser.uid){
+        event.docs.toList().forEach((element) {
+          if(DateTime.now().isBefore(DateTime.fromMicrosecondsSinceEpoch(element.data()['expire_date'].microsecondsSinceEpoch))){
+            if(element.data()['helper_id'] == fba.FirebaseAuth.instance.currentUser.uid){
 
-               Map<String,dynamic> data = {
-                 'id' : element.data()['requester_id'],
-                 'marker' : 'requester'
-               };
+              Map<String,dynamic> data = {
+                'id' : element.data()['requester_id'],
+                'marker' : 'requester'
+              };
 
-               if(!others.contains(data)){
-                 others.add(data);
-                 update();
-               }
+              if(!others.contains(data)){
+                others.add(data);
+                update();
+              }
 
-             }else{
+            }else{
 
-               Map<String,dynamic> data = {
-                 'id' : element.data()['helper_id'],
-                 'marker' : 'helper'
-               };
+              Map<String,dynamic> data = {
+                'id' : element.data()['helper_id'],
+                'marker' : 'helper'
+              };
 
-               if(!others.contains(data)){
-                 others.add(data);
-                 update();
-               }
+              if(!others.contains(data)){
+                others.add(data);
+                update();
+              }
 
-             }
-           }
-         });
+            }
+          }
+        });
 
-         Timer(Duration(seconds: 5),(){});  //pause for like 5 seconds...
+        Timer(Duration(seconds: 5),(){});  //pause for like 5 seconds...
 
-         if(user_collection_listener!=null){
-           user_collection_listener.cancel();
-           enable_user_collection_listener(context);
-         }else{
-           enable_user_collection_listener(context);
-         }
+        if(user_collection_listener!=null){
+          user_collection_listener.cancel();
+          enable_user_collection_listener(context);
+        }else{
+          enable_user_collection_listener(context);
+        }
 
-       });
-     }catch(error){
-       print('Error while enabling help request collection listener: ' + error.toString());
-     }
+      });
+    }catch(error){
+      print('Error while enabling help request collection listener: ' + error.toString());
+    }
   }
 
   enable_user_collection_listener(BuildContext context){
 
-      try{
-        user_collection_listener = FirebaseFirestore.instance.collection('Users')
-            .where('user_id', arrayContainsAny: others_just_uid_list(others))
-            .snapshots()
-            .listen((event) {
+    try{
+      user_collection_listener = FirebaseFirestore.instance.collection('Users')
+          .where('user_id', arrayContainsAny: others_just_uid_list(others))
+          .snapshots()
+          .listen((event) {
 
-              otherMarkers.clear();
-              update();
-
-          event.docs.toList().forEach((element) async{
-
-            bool helper = true;
-
-            others.forEach((others_element) {
-              if(others_element['id']==element.data()['user_id'][0]){
-                helper = (others_element['marker']== 'helper');
-              }
-            });
-
-            Uint8List imageData;
-
-            try{
-              imageData = await getMarker(context, helper ? "assets/images/helper_marker.png" : "assets/images/help_seeker_marker.png");
-            }catch(err){
-              print('error while setting image data: ' + err.toString());
-            }
-
-            otherMarkers.add(
-                Marker(
-                    infoWindow: InfoWindow(
-                      title: element.data()['full_name'],
-                    ),
-                    markerId: MarkerId(element.data()['user_id'][0]),
-                    position: LatLng(element.data()['g']['geopoint'].latitude,element.data()['g']['geopoint'].longitude),
-                    draggable: false,
-                    zIndex: 2,
-                    flat: true,
-                    anchor: Offset(0.5, 1),
-                    icon: BitmapDescriptor.fromBytes(imageData))
-            );
-            update();
-            if(!marker.isNull){
-              _createPolylines(marker, otherMarkers);
-            }
-          });
-        });
-      }catch(error){
         otherMarkers.clear();
         update();
-        print('Error while enabling user collection listener: ' + error.toString());
-      }
+
+        event.docs.toList().forEach((element) async{
+
+          bool helper = true;
+
+          others.forEach((others_element) {
+            if(others_element['id']==element.data()['user_id'][0]){
+              helper = (others_element['marker']== 'helper');
+            }
+          });
+
+          Uint8List imageData;
+
+          try{
+            imageData = await getMarker(context, helper ? "assets/images/helper_marker.png" : "assets/images/help_seeker_marker.png");
+          }catch(err){
+            print('error while setting image data: ' + err.toString());
+          }
+
+          otherMarkers.add(
+              Marker(
+                  infoWindow: InfoWindow(
+                    title: element.data()['full_name'],
+                  ),
+                  markerId: MarkerId(element.data()['user_id'][0]),
+                  position: LatLng(element.data()['g']['geopoint'].latitude,element.data()['g']['geopoint'].longitude),
+                  draggable: false,
+                  zIndex: 2,
+                  flat: true,
+                  anchor: Offset(0.5, 1),
+                  icon: BitmapDescriptor.fromBytes(imageData))
+          );
+          update();
+          if(!marker.isNull){
+            _createPolylines(marker, otherMarkers);
+          }
+        });
+      });
+    }catch(error){
+      otherMarkers.clear();
+      update();
+      print('Error while enabling user collection listener: ' + error.toString());
+    }
   }
 
   List<String> others_just_uid_list(List<Map<String, dynamic>> others){
@@ -315,8 +313,8 @@ class MapStatecontroller extends GetxController {
 
       if(element['id']!= auth.userInfo['user_id'][0]) { //User himself gets cut off from the list
         FirebaseFirestore.instance.doc('Users/${element['id']}').get().then((value) => {
-           sendNotification(value.data()['fcm'])
-         });
+          sendNotification(value.data()['fcm'])
+        });
       }
 
       //New Document in HelpRequest Collection will be created:
@@ -329,7 +327,7 @@ class MapStatecontroller extends GetxController {
           snaps.docs.toList().forEach((element) {
             if(DateTime.now().isBefore(DateTime.fromMicrosecondsSinceEpoch(element.data()['expire_date'].microsecondsSinceEpoch)) &&
                 element.data()['req_status'] == 'accepted' &&
-               !element.data()['requester_called_off']
+                !element.data()['requester_called_off']
             ){
               helper_occupied = true;
             }
@@ -351,9 +349,9 @@ class MapStatecontroller extends GetxController {
           'helper_and_requester': [auth.userInfo['user_id'][0], element['id']]
         });
       }
-     });
+    });
   }
-  
+
   sendNotification(String fcmToken) async{
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendRequestToHelpers');
     final results = await callable(fcmToken);
@@ -420,24 +418,12 @@ class MapStatecontroller extends GetxController {
   }
 
   void sendSMS({String number, String message}){
-      try{
-        SmsSender sender = new SmsSender();
-        sender.sendSms(new SmsMessage(number, message));
-      }catch(err){
-        print('Error while sending message: ' + err.toString());
-      }
-  }
-
-  enable_shake(){
-    detector = ShakeDetector.waitForStart(
-        onPhoneShake: () {
-          if(prefs.getBool('enable_shake_detection')){
-            ///todo : Action on shake
-          }
-        }
-    );
-    detector.startListening();
-    update();
+    try{
+      SmsSender sender = new SmsSender();
+      sender.sendSms(new SmsMessage(number, message));
+    }catch(err){
+      print('Error while sending message: ' + err.toString());
+    }
   }
 
   void toggleButton_for_shareLive() {
@@ -487,24 +473,24 @@ class MapStatecontroller extends GetxController {
 
         updateMarkerAndCircle(newLocalData, imageData);
 
-          if(updateLocation){
-            updatingLocationOnFirebase(newLocalData);
-            pauseLocationUpdate();
-          }
+        if(updateLocation){
+          updatingLocationOnFirebase(newLocalData);
+          pauseLocationUpdate();
+        }
 
-          if (_controller != null) {
-            _controller.animateCamera(
-              CameraUpdate.newCameraPosition(
-                new CameraPosition(
-                  zoom: 16,
-                  //bearing: 192.8334901395799,
-                  target: LatLng(newLocalData.latitude, newLocalData.longitude),
-                  tilt: 0,
-                ),
+        if (_controller != null) {
+          _controller.animateCamera(
+            CameraUpdate.newCameraPosition(
+              new CameraPosition(
+                zoom: 16,
+                //bearing: 192.8334901395799,
+                target: LatLng(newLocalData.latitude, newLocalData.longitude),
+                tilt: 0,
               ),
-            );
-          }
-        },
+            ),
+          );
+        }
+      },
       );
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
