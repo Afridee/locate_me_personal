@@ -53,7 +53,7 @@ dependencies:
   flutter_spinkit: "^4.1.2"
   sms: ^0.2.0
   shake: ^0.1.0
-  firebase_cloud_messaging: ^4.0.4+1
+  firebase_messaging: ^7.0.3
   cloud_functions: ^0.7.2
   geoflutterfire: ^2.2.1
   flutter_polyline_points: ^0.2.4

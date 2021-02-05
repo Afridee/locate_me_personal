@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_cloud_messaging/firebase_cloud_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +14,7 @@ import 'package:locate_me/widgets/help_request_dialogue.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as Dmath;
+import '../../main.dart';
 import '../../widgets/Drawer.dart';
 import 'ChooseContactsToShareLive.dart';
 import 'mapStateManagment.dart';
@@ -31,8 +32,7 @@ class _HomeState extends State<Home> {
   int PageIndex = 0;
   String _mapStyle;
   MapStatecontroller mapStatecontroller;
-  final CameraPosition _initialPosition =
-      CameraPosition(target: LatLng(23.6850, 90.3563));
+  final CameraPosition _initialPosition = CameraPosition(target: LatLng(23.6850, 90.3563));
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   StreamSubscription stream1;
   StreamSubscription stream2;
@@ -110,25 +110,25 @@ class _HomeState extends State<Home> {
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
+
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        //generate random ID for notification:
-        var rng = new Dmath.Random();
-        int generatedID = rng.nextInt(100);
-        scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
-        setState(() {});
+        print('msg recieved from onMessage');
+//        var rng = new Dmath.Random();
+//        int generatedID = rng.nextInt(100);
+//        scheduleAlarm(DateTime.now().add(Duration(seconds: 60)), generatedID, message['notification']['title'], message['notification']['body']);
       },
       onLaunch: (Map<String, dynamic> message) async {
-        var rng = new Dmath.Random();
-        int generatedID = rng.nextInt(100);
-        scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
-        setState(() {});
+        print('msg recieved from onLaunch');
+//        var rng = new Dmath.Random();
+//        int generatedID = rng.nextInt(100);
+//        scheduleAlarm(DateTime.now().add(Duration(seconds: 60)), generatedID, message['notification']['title'], message['notification']['body']);
       },
       onResume: (Map<String, dynamic> message) async {
-        var rng = new Dmath.Random();
-        int generatedID = rng.nextInt(100);
-        scheduleAlarm(DateTime.now(), generatedID, message['notification']['title'], message['notification']['body']);
-        setState(() {});
+        print('msg recieved from onResume');
+//        var rng = new Dmath.Random();
+//        int generatedID = rng.nextInt(100);
+//        scheduleAlarm(DateTime.now().add(Duration(seconds: 60)), generatedID, message['notification']['title'], message['notification']['body']);
       },
     );
     super.initState();

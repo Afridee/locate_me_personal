@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Screens/loginPages/firebase_auth_service.dart';
+import 'dart:math' as Dmath;
+import 'package:locate_me/widgets/Schedule_notification.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
