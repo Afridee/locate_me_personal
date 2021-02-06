@@ -23,6 +23,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 class MapStatecontroller extends GetxController {
 
   GoogleMapController _controller;
+  bool cameraAnimation = true;
   Location _locationTracker = Location();
   LocationData users_current_location;
   List<String> selectedContacts = new List<String>();
@@ -50,6 +51,15 @@ class MapStatecontroller extends GetxController {
     enable_help_request_collection_listener(context);
     assignPrefs();
     initializeSelectedContacts();
+  }
+
+  void pauseCameraAnimation() {
+    Timer(Duration(seconds: 20),(){
+      cameraAnimation = !cameraAnimation ;
+      update();
+    });
+    cameraAnimation  = !cameraAnimation;
+    update();
   }
 
   chooseFromSelectedContacts(String Number){
@@ -305,6 +315,19 @@ class MapStatecontroller extends GetxController {
     //to stop the user from constantly clicking
     pauseAskForHelp();
 
+    if (_controller != null) {
+      _controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          new CameraPosition(
+            zoom: 16,
+            //bearing: 192.8334901395799,
+            target: LatLng(users_current_location.latitude, users_current_location.longitude),
+            tilt: 0,
+          ),
+        ),
+      );
+    }
+
     //getting the user's UID:
     final auth  = Provider.of<FirebaseAuthService>(context, listen: false);
 
@@ -363,8 +386,8 @@ class MapStatecontroller extends GetxController {
 
     var notification = OSCreateNotification(
         playerIds: [oneSignalUserID],
-        content: "this is a test from OneSignal's Flutter SDK",
-        heading: "Test Notification",
+        content: "Please open your locate me app to find out",
+        heading: "Someone is in danger!!!",
         );
 
     var response = await OneSignal.shared.postNotification(notification);
@@ -495,17 +518,25 @@ class MapStatecontroller extends GetxController {
           pauseLocationUpdate();
         }
 
-        if (_controller != null) {
-          _controller.animateCamera(
-            CameraUpdate.newCameraPosition(
-              new CameraPosition(
-                zoom: 16,
-                //bearing: 192.8334901395799,
-                target: LatLng(newLocalData.latitude, newLocalData.longitude),
-                tilt: 0,
+        if(cameraAnimation){
+          pauseCameraAnimation();
+          //draw line:
+          if(marker!=null && otherMarkers.isNotEmpty && !otherMarkers.isNull){
+            _createPolylines(marker, otherMarkers);
+          }
+          //move camera:
+          if (_controller != null) {
+            _controller.animateCamera(
+              CameraUpdate.newCameraPosition(
+                new CameraPosition(
+                  zoom: 16,
+                  //bearing: 192.8334901395799,
+                  target: LatLng(newLocalData.latitude, newLocalData.longitude),
+                  tilt: 0,
+                ),
               ),
-            ),
-          );
+            );
+          }
         }
       },
       );
