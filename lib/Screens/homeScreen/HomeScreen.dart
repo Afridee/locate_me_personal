@@ -9,12 +9,9 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show SystemChrome, rootBundle;
 import 'package:locate_me/Screens/helpRequests/help_requests.dart';
-import 'package:locate_me/widgets/Schedule_notification.dart';
 import 'package:locate_me/widgets/help_request_dialogue.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math' as Dmath;
-import '../../main.dart';
 import '../../widgets/Drawer.dart';
 import 'ChooseContactsToShareLive.dart';
 import 'mapStateManagment.dart';
@@ -114,21 +111,12 @@ class _HomeState extends State<Home> {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print('msg recieved from onMessage');
-//        var rng = new Dmath.Random();
-//        int generatedID = rng.nextInt(100);
-//        scheduleAlarm(DateTime.now().add(Duration(seconds: 60)), generatedID, message['notification']['title'], message['notification']['body']);
       },
       onLaunch: (Map<String, dynamic> message) async {
         print('msg recieved from onLaunch');
-//        var rng = new Dmath.Random();
-//        int generatedID = rng.nextInt(100);
-//        scheduleAlarm(DateTime.now().add(Duration(seconds: 60)), generatedID, message['notification']['title'], message['notification']['body']);
       },
       onResume: (Map<String, dynamic> message) async {
         print('msg recieved from onResume');
-//        var rng = new Dmath.Random();
-//        int generatedID = rng.nextInt(100);
-//        scheduleAlarm(DateTime.now().add(Duration(seconds: 60)), generatedID, message['notification']['title'], message['notification']['body']);
       },
     );
     super.initState();
