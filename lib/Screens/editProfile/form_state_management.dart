@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:get/get.dart';
 import 'package:location/location.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import '../../Screens/loginPages/firebase_auth_service.dart';
 import '../../widgets/dialogue.dart';
 import 'package:picker/picker.dart';
@@ -94,6 +96,10 @@ class FormStatecontroller extends GetxController {
           final geo = Geoflutterfire();
           GeoFirePoint myLocation = geo.point(latitude: localData.latitude, longitude: localData.longitude);
           String fcmToken = await _firebaseMessaging.getToken();
+          String one_signal_user_id = '';
+          OneSignal.shared.getPermissionSubscriptionState().then((status) {
+            one_signal_user_id = status.subscriptionStatus.userId;
+          });
           await users.doc(_userID).set(
             {
               'full_name': full_name,
@@ -101,7 +107,8 @@ class FormStatecontroller extends GetxController {
               'phone_number': [user.phoneNumber,user.phoneNumber.substring(3,user.phoneNumber.length)],
               'user_id': [_userID],
               'g' : status.isGranted? myLocation.data : geo.point(latitude: 0.00, longitude: 0.00).data,
-              'fcm' : fcmToken
+              'fcm' : fcmToken,
+              'onesignal_user_id' : one_signal_user_id.trim()
             },
           );
 

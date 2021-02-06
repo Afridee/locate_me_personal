@@ -1,0 +1,24 @@
+To create notification:
+
+var notification = OSCreateNotification(
+    playerIds: [playerId],
+    content: "this is a test from OneSignal's Flutter SDK",
+    heading: "Test Notification",
+    iosAttachments: {"id1": imgUrlString},
+    bigPicture: imgUrlString,
+    buttons: [
+      OSActionButton(text: "test1", id: "id1"),
+      OSActionButton(text: "test2", id: "id2")
+    ]);
+
+var response = await OneSignal.shared.postNotification(notification);
+
+
+To get the user ID:
+
+
+OneSignal.shared.getPermissionSubscriptionState().then((status) {
+  this.setState(() {
+    print(status.jsonRepresentation());
+  });
+});

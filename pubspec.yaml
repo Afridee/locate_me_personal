@@ -60,6 +60,8 @@ dependencies:
   shared_preferences: ^0.5.12+4
   flutter_local_notifications: ^3.0.3
   geocoder: ^0.2.1
+  onesignal_flutter: ^2.0.0
+
 
 
 

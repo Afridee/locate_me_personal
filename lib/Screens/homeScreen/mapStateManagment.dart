@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:location/location.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms/sms.dart';
 import 'package:shake/shake.dart';
@@ -264,10 +265,16 @@ class MapStatecontroller extends GetxController {
 
       final FirebaseMessaging  _firebaseMessaging = FirebaseMessaging();
       String fcmToken = await _firebaseMessaging.getToken();
+      String one_signal_user_id = '';
+      await OneSignal.shared.getPermissionSubscriptionState().then((status) {
+        one_signal_user_id = status.subscriptionStatus.userId;
+      });
       final CollectionReference users = FirebaseFirestore.instance.collection('Users');
+
       await users.doc(_userID).update(
         {
-          'fcm' : fcmToken
+          'fcm' : fcmToken,
+          'onesignal_user_id' : one_signal_user_id.trim()
         },
       );
     }catch(error){
@@ -313,7 +320,7 @@ class MapStatecontroller extends GetxController {
 
       if(element['id']!= auth.userInfo['user_id'][0]) { //User himself gets cut off from the list
         FirebaseFirestore.instance.doc('Users/${element['id']}').get().then((value) => {
-          sendNotification(value.data()['fcm'])
+          sendNotification(value.data()['fcm'],value.data()['onesignal_user_id'])
         });
       }
 
@@ -352,10 +359,20 @@ class MapStatecontroller extends GetxController {
     });
   }
 
-  sendNotification(String fcmToken) async{
+  sendNotification(String fcmToken, String oneSignalUserID) async{
+
+    var notification = OSCreateNotification(
+        playerIds: [oneSignalUserID],
+        content: "this is a test from OneSignal's Flutter SDK",
+        heading: "Test Notification",
+        );
+
+    var response = await OneSignal.shared.postNotification(notification);
+
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendRequestToHelpers');
     final results = await callable(fcmToken);
     print('push status: ' + results.data.toString());
+    print('one signal push status' + response.toString());
   }
 
   updatingLocationOnFirebase(LocationData newLocation) async{
@@ -387,7 +404,7 @@ class MapStatecontroller extends GetxController {
 
         doc.docs.toList().forEach((element) async{
           existing_numbers.add(element.data()['phone_number'][1]);
-          sendNotification(element.data()['fcm']);
+          sendNotification(element.data()['fcm'],element.data()['onesignal_user_id']);
           await helpRequests.doc('${auth.userInfo['user_id'][0]}_${element.data()['user_id'][0]}').set({
             'requester_id' : auth.userInfo['user_id'][0],
             'requester_name' : auth.userInfo['full_name'],

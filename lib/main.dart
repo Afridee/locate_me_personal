@@ -8,10 +8,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Screens/loginPages/firebase_auth_service.dart';
 import 'dart:math' as Dmath;
-import 'package:locate_me/widgets/Schedule_notification.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+
+  //Remove this method to stop OneSignal Debugging
+  OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+
+  OneSignal.shared.init(
+      "364b9b84-115b-43de-9f55-460636572952",
+      iOSSettings: {
+        OSiOSSettings.autoPrompt: false,
+        OSiOSSettings.inAppLaunchUrl: false
+      }
+  );
+  OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
+
+// The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+  await OneSignal.shared.promptUserForPushNotificationPermission(fallbackToSettings: true);
+
   await Firebase.initializeApp();
   Directory Document = await getApplicationDocumentsDirectory();
   Hive.init(Document.path);
