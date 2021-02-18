@@ -74,6 +74,7 @@ class InputPhoneAndName extends StatelessWidget {
                     ),
                     TextField(
                       controller: phoneNumber,
+                      keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         hintText: "+88 XXXX XXXX XXX",
                         isDense: true,

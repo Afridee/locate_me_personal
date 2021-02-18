@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
@@ -13,7 +14,6 @@ import 'package:location/location.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms/sms.dart';
-import 'package:shake/shake.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/loginPages/firebase_auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,6 +23,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 class MapStatecontroller extends GetxController {
 
   GoogleMapController _controller;
+  Set<Circle> circles;
   bool cameraAnimation = true;
   Location _locationTracker = Location();
   LocationData users_current_location;
@@ -43,6 +44,7 @@ class MapStatecontroller extends GetxController {
   // two points
   Map<PolylineId, Polyline> polylines = {};
   SharedPreferences prefs;
+  String query = '';
 
 
   //Constructor:
@@ -51,6 +53,27 @@ class MapStatecontroller extends GetxController {
     enable_help_request_collection_listener(context);
     assignPrefs();
     initializeSelectedContacts();
+  }
+
+  void locationQuery(String query) async{
+    // From a query
+    try {
+      var addresses = await Geocoder.local.findAddressesFromQuery(query);
+      if (_controller != null) {
+        _controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            new CameraPosition(
+              zoom: 16,
+              //bearing: 192.8334901395799,
+              target: LatLng(addresses.first.coordinates.latitude, addresses.first.coordinates.longitude),
+              tilt: 0,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   void pauseCameraAnimation() {
@@ -494,6 +517,16 @@ class MapStatecontroller extends GetxController {
         flat: true,
         anchor: Offset(0.5, 1),
         icon: BitmapDescriptor.fromBytes(imageData));
+
+    circles = Set.from([Circle(
+      circleId: CircleId("you"),
+      center: latlng,
+      radius: 500,
+      strokeWidth: 2,
+      strokeColor: Colors.lightBlueAccent,
+      fillColor: Colors.lightBlueAccent.withOpacity(0.1)
+    )]);
+
     update();
   }
 

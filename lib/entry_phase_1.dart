@@ -20,7 +20,7 @@ class _entry_phase_1State extends State<entry_phase_1> {
       builder: (_, AsyncSnapshot<User> snapshot){
         if(snapshot.connectionState == ConnectionState.active){
           final User user = snapshot.data;
-          return user == null? login_page() : (auth.userInfoGiven? EntryPhase2() : form());
+          return user == null? login_page() : (auth.userInfoGiven? EntryPhase2() : form(willPop: false));
         }else{
           return Scaffold(
               body: Container(

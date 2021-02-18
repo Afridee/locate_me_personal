@@ -1,17 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show SystemChrome, rootBundle;
 import 'package:locate_me/Screens/helpRequests/help_requests.dart';
 import 'package:locate_me/widgets/help_request_dialogue.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:search_widget/search_widget.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/Drawer.dart';
@@ -152,11 +152,11 @@ class _HomeState extends State<Home> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           elevation: 0,
           iconTheme: IconThemeData(color: Color(0xffF26F50)),
           backgroundColor: Colors.white,
-          shadowColor: Colors.white,
         ),
         endDrawer: SideDrawer(),
         body: PageView(
@@ -167,11 +167,12 @@ class _HomeState extends State<Home> {
             width: MediaQuery.of(context).size.width,
             color: Colors.white,
             child: Stack(
-              alignment: Alignment.bottomLeft,
+              alignment: Alignment.bottomCenter,
               children: [
                 GetBuilder<MapStatecontroller>(
                   builder: (MSC) {
                     return GoogleMap(
+                      circles: MSC.circles,
                       polylines: MSC.polylines != null
                           ? Set<Polyline>.of(MSC.polylines.values)
                           : null,
@@ -290,6 +291,64 @@ class _HomeState extends State<Home> {
                         : Container();
                   },
                 ),
+                Positioned(
+                  bottom: 500,
+                  child: Container(
+
+                    height: 55,
+                    decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 7,
+                            offset: Offset(0, 2), // changes position of shadow
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(30),
+                        color: Colors.white,),
+                    width: MediaQuery.of(context).size.width - 50,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: TextField(
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                              ),
+                              onChanged: (value){
+                                mapStatecontroller.query = value;
+                              },
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(30)
+                              ),
+                              child: Center(
+                                child: IconButton(
+                                  color: Colors.white,
+                                  iconSize: 40,
+                                  icon: Icon(Icons.search),
+                                  onPressed: (){
+                                    mapStatecontroller.locationQuery(mapStatecontroller.query);
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),HelpRequests()],
@@ -316,4 +375,21 @@ class _HomeState extends State<Home> {
   }
 }
 
+
+class PopupListItemWidget extends StatelessWidget {
+  const PopupListItemWidget(this.featureName);
+
+  final String featureName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      child: Text(
+        featureName,
+        style: const TextStyle(fontSize: 16),
+      ),
+    );
+  }
+}
 

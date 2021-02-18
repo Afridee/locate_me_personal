@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:locate_me/Screens/AboutUs.dart';
 import 'package:locate_me/Screens/PrivacyPolicy.dart';
 import 'package:locate_me/Screens/UserGuidelines.dart';
+import 'package:locate_me/Screens/editProfile/form.dart';
 import '../Screens/EditEmergengyContacts/edit_emergency_contacts.dart';
 import '../Screens/loginPages/firebase_auth_service.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +43,7 @@ class _SideDrawerState extends State<SideDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<FirebaseAuthService>(context, listen: false);
+    final auth = Provider.of<FirebaseAuthService>(context, listen: true);
     return Drawer(
       child: Container(
         color: Colors.white,
@@ -90,6 +91,20 @@ class _SideDrawerState extends State<SideDrawer> {
                   var route = new MaterialPageRoute(
                     builder: (BuildContext context) =>
                         new EditEmergencyContacts(),
+                  );
+                  Navigator.of(context).push(route);
+                }),
+            drawerListTile(
+                iconBGcolor: Color(0xfff6729b),
+                icon: Icon(
+                  Icons.edit_rounded,
+                  color: Colors.white,
+                ),
+                title: 'Edit Profile',
+                action: () {
+                  Navigator.of(context).pop();
+                  var route = new MaterialPageRoute(
+                    builder: (BuildContext context) => new form(willPop: true),
                   );
                   Navigator.of(context).push(route);
                 }),

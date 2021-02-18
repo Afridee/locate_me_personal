@@ -38,12 +38,15 @@ class FormStatecontroller extends GetxController {
         );
         update();
       } catch (error) {
-        print('Error while getting image : ' + error.toString());
+        //print('Error while getting image : ' + error.toString());
       }
     }
   }
 
   void updateUserInfo(BuildContext context, String full_name) async {
+
+    final _auth = Provider.of<FirebaseAuthService>(context, listen: false);
+
     if (update_button_activated && !imageFile.isNull && full_name.length > 5) {
 
       //first deactivate the button, so that the user doesn't keep clicking it like a little bitch:
@@ -62,7 +65,7 @@ class FormStatecontroller extends GetxController {
       firebase_storage.Reference firebaseStorageRef = firebase_storage
           .FirebaseStorage.instance
           .ref()
-          .child('images/$_userID/' + fileName);
+          .child('images/${_userID}_pic');
 
       //uploading the image:
       firebase_storage.UploadTask uploadTask =
@@ -71,13 +74,13 @@ class FormStatecontroller extends GetxController {
       //Checking upload status:
       uploadTask.snapshotEvents.listen(
           (firebase_storage.TaskSnapshot snapshot) {
-        print('Task state: ${snapshot.state}');
-        print('Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100} %');
+        //print('Task state: ${snapshot.state}');
+        //print('Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100} %');
       }, onError: (e) {
         update_button_activated = true;
         update();
         if (e.code == 'permission-denied') {
-          print('User does not have permission to upload to this reference.');
+          //print('User does not have permission to upload to this reference.');
         }
       });
 
@@ -118,23 +121,53 @@ class FormStatecontroller extends GetxController {
           //activating the button again:
           update_button_activated = true;
           update();
+
+          _auth.getCurrentUserINFO();
+
+          appShowDialog(context, 'Profile updated', 'Your profile has been updated', Color(0xffF17350));
+
         } catch (e) {
           update_button_activated = true;
           update();
-          print('Error while getting download url and updating user info: ' +
-              e.toString());
+          //print('Error while getting download url and updating user info: ' +
+           //   e.toString());
           }
       });
     }else{
-      if(imageFile.isNull){
-        appShowDialog(context, 'Image not selected', '...', Color(0xffF17350));
+      if(imageFile.isNull && _auth.userInfo==null){
+        appShowDialog(context, 'Image not selected', 'Please select an image', Color(0xffF17350));
       }
       if(full_name.length < 5){
         appShowDialog(context, 'Invalid Name', 'Please enter your full name', Color(0xffF17350));
       }
+      if(!_auth.userInfo.isNullOrBlank && imageFile.isNull && full_name.length > 5){
+        final CollectionReference users = FirebaseFirestore.instance.collection('Users');
+
+        //getting the user's UID:
+        final auth = fba.FirebaseAuth.instance;
+        final fba.User user = auth.currentUser;
+        String _userID = user.uid;
+
+        try {
+          users.doc(_userID).update({
+                     'full_name' : full_name
+                  });
+        } catch (e) {
+          //print(e);
+        }
+
+        _auth.getCurrentUserINFO();
+
+        Navigator.of(context).pop();
+
+        appShowDialog(context, 'Profile updated', 'Your profile has been updated', Color(0xffF17350));
+      }
       if(!update_button_activated){
-        appShowDialog(context, 'Hold your horses, you already clicked', '...', Color(0xffF17350));
+        appShowDialog(context, 'Hold your horses, you already clicked', 'It will take awhile', Color(0xffF17350));
       }
     }
   }
+
+
+
 }

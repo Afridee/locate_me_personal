@@ -190,8 +190,6 @@ class _enterPhoneNumberState extends State<enterPhoneNumber> {
                           //       ),
                           //     ),
                           //   ),
-
-                          if (PNS.resendButton)
                             Center(
                               child: RichText(
                                 text: TextSpan(
@@ -205,8 +203,10 @@ class _enterPhoneNumberState extends State<enterPhoneNumber> {
                                     WidgetSpan(
                                       child: InkWell(
                                         onTap: () {
-                                          PNS.hideResetButton();
-                                          LogInWIthPhone(PNS, context);
+                                          if (PNS.resendButton){
+                                            PNS.hideResetButton();
+                                            LogInWIthPhone(PNS, context);
+                                          }
                                         },
                                         child: Text(
                                           "Resend",
