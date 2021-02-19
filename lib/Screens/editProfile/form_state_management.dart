@@ -14,7 +14,6 @@ import '../../Screens/loginPages/firebase_auth_service.dart';
 import '../../widgets/dialogue.dart';
 import 'package:picker/picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -53,8 +52,6 @@ class FormStatecontroller extends GetxController {
       update_button_activated = false;
       update();
 
-      //getting the image name:
-      String fileName = basename(imageFile.path);
 
       //getting the user's UID:
       final auth = fba.FirebaseAuth.instance;

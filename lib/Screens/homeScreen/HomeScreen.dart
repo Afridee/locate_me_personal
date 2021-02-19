@@ -292,7 +292,7 @@ class _HomeState extends State<Home> {
                   },
                 ),
                 Positioned(
-                  bottom: 500,
+                  top: 30,
                   child: Container(
 
                     height: 55,
@@ -316,6 +316,7 @@ class _HomeState extends State<Home> {
                             padding: const EdgeInsets.all(10.0),
                             child: TextField(
                               decoration: InputDecoration(
+                                hintText: "Search for location...",
                                 border: InputBorder.none,
                               ),
                               onChanged: (value){
@@ -374,22 +375,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-
-class PopupListItemWidget extends StatelessWidget {
-  const PopupListItemWidget(this.featureName);
-
-  final String featureName;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      child: Text(
-        featureName,
-        style: const TextStyle(fontSize: 16),
-      ),
-    );
-  }
-}
-

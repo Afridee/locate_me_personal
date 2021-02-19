@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:locate_me/Screens/AboutUs.dart';
+import 'package:locate_me/Screens/InviteFriends/InviteFrends.dart';
 import 'package:locate_me/Screens/PrivacyPolicy.dart';
+import 'package:locate_me/Screens/Reports/Report.dart';
 import 'package:locate_me/Screens/UserGuidelines.dart';
 import 'package:locate_me/Screens/editProfile/form.dart';
 import '../Screens/EditEmergengyContacts/edit_emergency_contacts.dart';
@@ -137,6 +139,20 @@ class _SideDrawerState extends State<SideDrawer> {
                   Navigator.of(context).push(route);
                 }),
             drawerListTile(
+                iconBGcolor: Colors.red,
+                icon: Icon(
+                  Icons.report,
+                  color: Colors.white,
+                ),
+                title: 'Report a crime',
+                action: () {
+                  Navigator.of(context).pop();
+                  var route = new MaterialPageRoute(
+                    builder: (BuildContext context) => new Report(),
+                  );
+                  Navigator.of(context).push(route);
+                }),
+            drawerListTile(
                 iconBGcolor: Color(0xff84dff7),
                 icon: Icon(
                   Icons.privacy_tip,
@@ -150,9 +166,20 @@ class _SideDrawerState extends State<SideDrawer> {
                   );
                   Navigator.of(context).push(route);
                 }),
-            SizedBox(
-              height: 40,
-            ),
+            drawerListTile(
+                iconBGcolor: Colors.blue,
+                icon: Icon(
+                  Icons.people,
+                  color: Colors.white,
+                ),
+                title: 'Invite Friends',
+                action: () {
+                  Navigator.of(context).pop();
+                  var route = new MaterialPageRoute(
+                    builder: (BuildContext context) => new InviteFriends(),
+                  );
+                  Navigator.of(context).push(route);
+                }),
             Padding(
               padding: const EdgeInsets.all(25.0),
               child: Container(
