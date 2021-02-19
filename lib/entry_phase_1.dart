@@ -1,3 +1,6 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'Screens/TermsAndConditions.dart';
 import 'Screens/editProfile/form.dart';
 import 'Screens/loginPages/login_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +15,32 @@ class entry_phase_1 extends StatefulWidget {
 }
 
 class _entry_phase_1State extends State<entry_phase_1> {
+
+  SharedPreferences prefs;
+  bool termsAccepted = false;
+
+
+  initPrefs() async{
+    prefs = await SharedPreferences.getInstance();
+    if(prefs.getBool('termsAccepted')==null) {
+      prefs.setBool('termsAccepted', false);
+      setState(() {
+        termsAccepted =  prefs.getBool('termsAccepted');
+      });
+    }else{
+      setState(() {
+        termsAccepted =  prefs.getBool('termsAccepted');
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    initPrefs();
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final auth  = Provider.of<FirebaseAuthService>(context, listen: true);
@@ -20,7 +49,7 @@ class _entry_phase_1State extends State<entry_phase_1> {
       builder: (_, AsyncSnapshot<User> snapshot){
         if(snapshot.connectionState == ConnectionState.active){
           final User user = snapshot.data;
-          return user == null? login_page() : (auth.userInfoGiven? EntryPhase2() : form(willPop: false));
+          return user == null? login_page() : termsAccepted ? (auth.userInfoGiven? EntryPhase2() : form(willPop: false)) : TramsAndCondition();
         }else{
           return Scaffold(
               body: Container(

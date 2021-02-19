@@ -59,6 +59,13 @@ class MapStatecontroller extends GetxController {
     // From a query
     try {
       var addresses = await Geocoder.local.findAddressesFromQuery(query);
+      _createPolylines(marker, [Marker(
+          markerId: MarkerId('destination'),
+          position: LatLng(addresses.first.coordinates.latitude,addresses.first.coordinates.longitude),
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: Offset(0.5, 1))]);
       if (_controller != null) {
         _controller.animateCamera(
           CameraUpdate.newCameraPosition(
@@ -72,7 +79,7 @@ class MapStatecontroller extends GetxController {
         );
       }
     } catch (e) {
-      print(e);
+      //print(e);
     }
   }
 
@@ -136,7 +143,7 @@ class MapStatecontroller extends GetxController {
           travelMode: TravelMode.driving,
         );
       }catch(err){
-        print('Error while drawing polyline: ' + err.toString());
+        //print('Error while drawing polyline: ' + err.toString());
       }
 
       // Adding the coordinates to the list
@@ -162,6 +169,8 @@ class MapStatecontroller extends GetxController {
     polylines[id] = polyline;
     update();
   }
+
+  //randomPolylines()
 
   enable_help_request_collection_listener(BuildContext context){
     try{
@@ -220,7 +229,7 @@ class MapStatecontroller extends GetxController {
 
       });
     }catch(error){
-      print('Error while enabling help request collection listener: ' + error.toString());
+      //print('Error while enabling help request collection listener: ' + error.toString());
     }
   }
 
@@ -250,7 +259,7 @@ class MapStatecontroller extends GetxController {
           try{
             imageData = await getMarker(context, helper ? "assets/images/helper_marker.png" : "assets/images/help_seeker_marker.png");
           }catch(err){
-            print('error while setting image data: ' + err.toString());
+            //print('error while setting image data: ' + err.toString());
           }
 
           otherMarkers.add(
@@ -275,7 +284,7 @@ class MapStatecontroller extends GetxController {
     }catch(error){
       otherMarkers.clear();
       update();
-      print('Error while enabling user collection listener: ' + error.toString());
+      //print('Error while enabling user collection listener: ' + error.toString());
     }
   }
 
@@ -311,7 +320,7 @@ class MapStatecontroller extends GetxController {
         },
       );
     }catch(error){
-      print('error while updating fcm: ' + error);
+      //print('error while updating fcm: ' + error);
     }
   }
 
@@ -358,7 +367,7 @@ class MapStatecontroller extends GetxController {
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getHelpers');
     final results = await callable({'latitude': marker.position.latitude,'longitude':marker.position.longitude});
     List helpers = results.data;
-    print('helpers: ' + helpers.toString());
+   // print('helpers: ' + helpers.toString());
 
     //send help request notification example:
     helpers.forEach((element) async{
@@ -387,7 +396,7 @@ class MapStatecontroller extends GetxController {
           });
         });
       }catch(error){
-        print('error while checking if helper is occupied: ' + error.toString());
+       // print('error while checking if helper is occupied: ' + error.toString());
       }
 
       if (!helper_occupied && auth.userInfo['user_id'][0] != element['id']) {
@@ -417,8 +426,8 @@ class MapStatecontroller extends GetxController {
 
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendRequestToHelpers');
     final results = await callable(fcmToken);
-    print('push status: ' + results.data.toString());
-    print('one signal push status' + response.toString());
+    //print('push status: ' + results.data.toString());
+    //print('one signal push status' + response.toString());
   }
 
   updatingLocationOnFirebase(LocationData newLocation) async{
@@ -463,11 +472,11 @@ class MapStatecontroller extends GetxController {
           });
         });
 
-        print('Existing Numbers:' + existing_numbers.toString());
-        print('Phone Numbers:' + selectedContacts.toString());
+        //print('Existing Numbers:' + existing_numbers.toString());
+        //print('Phone Numbers:' + selectedContacts.toString());
 
         selectedContacts.forEach((element){
-          print(!existing_numbers.contains(element));
+         // print(!existing_numbers.contains(element));
           if(!existing_numbers.contains(element)){
             sendSMS(number: element,
                 message: "${auth.userInfo['full_name']} may be in danger, he's current location is:\nhttps://www.google.com/maps/search/?api=1&query=${users_current_location.latitude},${users_current_location.longitude}");
@@ -485,7 +494,7 @@ class MapStatecontroller extends GetxController {
       SmsSender sender = new SmsSender();
       sender.sendSms(new SmsMessage(number, message));
     }catch(err){
-      print('Error while sending message: ' + err.toString());
+     // print('Error while sending message: ' + err.toString());
     }
   }
 

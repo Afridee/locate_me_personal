@@ -41,6 +41,6 @@ Future<void> signOut(BuildContext context) async {
   try {
     await _firebaseAuth.signOut();
   } catch (e) {
-    print(e);
+    //print(e);
   }
 }

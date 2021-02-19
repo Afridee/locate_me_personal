@@ -13,32 +13,13 @@ class EntryPhase2 extends StatefulWidget {
 
 class _EntryPhase2State extends State<EntryPhase2> {
 
-  SharedPreferences prefs;
-  bool termsAccepted = false;
-
-
-  initPrefs() async{
-    prefs = await SharedPreferences.getInstance();
-    if(prefs.getBool('termsAccepted')==null) {
-        prefs.setBool('termsAccepted', false);
-        setState(() {
-          termsAccepted =  prefs.getBool('termsAccepted');
-        });
-    }else{
-      setState(() {
-        termsAccepted =  prefs.getBool('termsAccepted');
-      });
-    }
-  }
-
   @override
   void initState() {
-    initPrefs();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Hive.box<Map>("selected_contact_box").isNotEmpty? Home() : ( termsAccepted ? Contacts(willpop: false) : TramsAndCondition());
+    return Hive.box<Map>("selected_contact_box").isNotEmpty? Home() : Contacts(willpop: false);
   }
 }

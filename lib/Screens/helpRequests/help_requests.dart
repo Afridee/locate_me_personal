@@ -38,7 +38,7 @@ class _HelpRequestsState extends State<HelpRequests> {
         },
       );
     } catch (err) {
-      print('Error in HelpRequests init: ' + err.toString());
+     // print('Error in HelpRequests init: ' + err.toString());
     }
     super.initState();
   }

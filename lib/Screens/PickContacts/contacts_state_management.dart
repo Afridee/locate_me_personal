@@ -43,7 +43,7 @@ class ContactStatecontroller extends GetxController {
         update();
       }
     } else if (status.isDenied) {
-      print('Permission Denied');
+      //print('Permission Denied');
     }
   }
 

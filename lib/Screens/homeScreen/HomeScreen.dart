@@ -90,7 +90,7 @@ class _HomeState extends State<Home> {
       },
       );
     } catch (err) {
-      print('Error in HelpRequests init: ' + err.toString());
+      //print('Error in HelpRequests init: ' + err.toString());
     }
     try {
       stream1 = FirebaseFirestore.instance
@@ -104,7 +104,7 @@ class _HomeState extends State<Home> {
         mapStatecontroller.enable_help_request_collection_listener(context);
       });
     } catch (err) {
-      print('Error in Homescreen init: ' + err.toString());
+      //print('Error in Homescreen init: ' + err.toString());
     }
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
@@ -112,13 +112,13 @@ class _HomeState extends State<Home> {
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print('msg recieved from onMessage');
+        //print('msg recieved from onMessage');
       },
       onLaunch: (Map<String, dynamic> message) async {
-        print('msg recieved from onLaunch');
+        //print('msg recieved from onLaunch');
       },
       onResume: (Map<String, dynamic> message) async {
-        print('msg recieved from onResume');
+        //print('msg recieved from onResume');
       },
     );
     super.initState();
@@ -154,6 +154,48 @@ class _HomeState extends State<Home> {
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
+          centerTitle: true,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                width: 220,
+                child: Center(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search for location...",
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (value){
+                      mapStatecontroller.query = value;
+                    },
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Container(
+                  height: 30,
+                  width: 50,
+                  decoration: BoxDecoration(
+                      color: Color(0xffF26F50),
+                      borderRadius: BorderRadius.circular(30)
+                  ),
+                  child: Center(
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      color: Colors.white,
+                      iconSize: 20,
+                      icon: Icon(Icons.search),
+                      onPressed: (){
+                        mapStatecontroller.locationQuery(mapStatecontroller.query);
+                      },
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
           elevation: 0,
           iconTheme: IconThemeData(color: Color(0xffF26F50)),
           backgroundColor: Colors.white,
@@ -188,8 +230,7 @@ class _HomeState extends State<Home> {
                           controller.setMapStyle(_mapStyle);
                           mapStatecontroller.setController(controller);
                         } catch (error) {
-                          print('error while initializing map: ' +
-                              error.toString());
+                         // print('error while initializing map: ' + error.toString());
                         }
                       },
                     );
@@ -275,9 +316,6 @@ class _HomeState extends State<Home> {
                           },
                         ),
                       ),
-                      SizedBox(
-                        height: 55,
-                      )
                     ],
                   ),
                 ),
@@ -291,11 +329,10 @@ class _HomeState extends State<Home> {
                         : Container();
                   },
                 ),
-                Positioned(
+                /*Positioned(
                   top: 30,
                   child: Container(
-
-                    height: 55,
+                    height: 40,
                     decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
@@ -309,11 +346,11 @@ class _HomeState extends State<Home> {
                         color: Colors.white,),
                     width: MediaQuery.of(context).size.width - 50,
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Expanded(
-                          flex: 3,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
+                        Container(
+                          width: 220,
+                          child: Center(
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: "Search for location...",
@@ -325,23 +362,22 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(30)
-                              ),
-                              child: Center(
-                                child: IconButton(
-                                  color: Colors.white,
-                                  iconSize: 40,
-                                  icon: Icon(Icons.search),
-                                  onPressed: (){
-                                    mapStatecontroller.locationQuery(mapStatecontroller.query);
-                                  },
-                                ),
+                        Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Container(
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(30)
+                            ),
+                            child: Center(
+                              child: IconButton(
+                                color: Colors.white,
+                                iconSize: 20,
+                                icon: Icon(Icons.search),
+                                onPressed: (){
+                                  mapStatecontroller.locationQuery(mapStatecontroller.query);
+                                },
                               ),
                             ),
                           ),
@@ -349,7 +385,7 @@ class _HomeState extends State<Home> {
                       ],
                     ),
                   ),
-                ),
+                ),*/
               ],
             ),
           ),HelpRequests()],

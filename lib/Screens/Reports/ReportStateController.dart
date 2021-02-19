@@ -111,7 +111,7 @@ class ReportStateController extends GetxController {
             }
 
           } catch (e) {
-            print(e);
+            //print(e);
           }
         });
       });

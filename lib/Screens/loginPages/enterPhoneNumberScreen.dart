@@ -135,7 +135,7 @@ class _enterPhoneNumberState extends State<enterPhoneNumber> {
                                 LogInWithOTP(context, pin, PNS);
                               },
                               beforeTextPaste: (text) {
-                                print("Allowing to paste $text");
+                               // print("Allowing to paste $text");
                                 return true;
                               },
                             ),

@@ -75,7 +75,7 @@ class FirebaseAuthService extends ChangeNotifier{
         getCurrentUserINFO();
       }
     }catch(e){
-      print(e);
+      //print(e);
     }
   }
 
@@ -93,7 +93,7 @@ class FirebaseAuthService extends ChangeNotifier{
         }
       });
     } catch (e) {
-      print(e);
+      //print(e);
     }
   }
 
