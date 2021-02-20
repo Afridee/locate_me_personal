@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "567350166629-i4ajjp3s2729kcki85rske7bsg2ukne5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oreostudio.locate_me",
+            "certificate_hash": "74cb248e47f90ad3b3b8173133007a47ecb2ae65"
+          }
+        },
+        {
           "client_id": "567350166629-pe84bp3jkc7kf71d2rbepd1djcetv8sn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
