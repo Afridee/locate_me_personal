@@ -7,7 +7,7 @@ part 'phoneNumberStateManagement.g.dart';
 class phoneNumberStateClass = phoneNumberState with _$phoneNumberStateClass;
 
 abstract class phoneNumberState with Store{
-
+ //
   @observable
   String phoneNumber = '';
 
