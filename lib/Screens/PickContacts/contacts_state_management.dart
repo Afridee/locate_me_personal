@@ -22,8 +22,6 @@ class ContactStatecontroller extends GetxController {
     //asking for permission:
 
     final status = await Permission.contacts.request();
-    final status2 = await Permission.phone.request();
-    final status3 = await Permission.sms.request();
 
 
 
@@ -31,7 +29,7 @@ class ContactStatecontroller extends GetxController {
     contact_list.clear();
     update();
 
-    if (status.isGranted && status2.isGranted && status3.isGranted) {
+    if (status.isGranted) {
       Iterable<Contact> contacts = await ContactsService.getContacts();
       for (var contact in contacts) {
         if(contact.phones.isNotEmpty)

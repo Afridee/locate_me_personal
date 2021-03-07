@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "567350166629-pv8mun6t277hg00d4jvv1ek10vo9fkoj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oreostudio.locate_me",
+            "certificate_hash": "edae9d3b8c04189c2bfc544982bab0f021485318"
+          }
+        },
+        {
           "client_id": "567350166629-v8fhpr0ei05q24tkr7rh0t1lek05p6ep.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

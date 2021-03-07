@@ -51,7 +51,6 @@ dependencies:
   google_maps_flutter: ^1.1.1
   location: ^3.0.0
   flutter_spinkit: "^4.1.2"
-  sms: ^0.2.0
   shake: ^0.1.0
   firebase_messaging: ^7.0.3
   cloud_functions: ^0.7.2

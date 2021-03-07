@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
+import 'package:locate_me/widgets/dialogue.dart';
+import 'package:locate_me/widgets/prominentDisclosure.dart';
+import 'package:locate_me/widgets/prominentDisclosure2.dart';
 import 'enterPhoneNumberScreen.dart';
 import 'package:flutter/services.dart';
 import '../../Animation/FadeAnimation.dart';
@@ -21,12 +26,19 @@ class _login_pageState extends State<login_page> {
   loginScreenStateClass LS;
   //functions:
 
+  void showDialogue() {
+    Timer(Duration(seconds: 5),(){
+      disclosure(context,'Use your Location','To share your location when you need help allow Locate me App to use your location all of the time \n\nLocate Me will use location in the background. The location data is only shared when the user asks for help from his/her close contacts or people around him/her.',Color(0xffF26F50));
+      disclosure2(context,'Use your Contacts','To share your location with close contacts when you need help allow Locate me App to access your contacts all of the time \n\nLocate me will use your contacts to send notification to your close contacts, if they have an account in our app',Color(0xffF26F50));
+    });
+  }
+
   //function 1:
 
   @override
   void initState() {
     LS = new loginScreenStateClass();
-
+    showDialogue();
     super.initState();
   }
 

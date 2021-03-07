@@ -13,7 +13,6 @@ import 'package:firebase_auth/firebase_auth.dart' as fba;
 import 'package:location/location.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms/sms.dart';
 import 'package:provider/provider.dart';
 import '../../Screens/loginPages/firebase_auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -490,12 +489,12 @@ class MapStatecontroller extends GetxController {
   }
 
   void sendSMS({String number, String message}){
-    try{
-      SmsSender sender = new SmsSender();
-      sender.sendSms(new SmsMessage(number, message));
-    }catch(err){
-     // print('Error while sending message: ' + err.toString());
-    }
+//    try{
+//      SmsSender sender = new SmsSender();
+//      sender.sendSms(new SmsMessage(number, message));
+//    }catch(err){
+//     // print('Error while sending message: ' + err.toString());
+//    }
   }
 
   void toggleButton_for_shareLive() {
